@@ -59,7 +59,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
     @Override
     public Optional<GiftCertificate> findById(Long id) {
-        Optional<GiftCertificate> optionalGiftCertificate = jdbcTemplate.query("",new Object[]{id},new BeanPropertyRowMapper<>(GiftCertificate.class))
+        Optional<GiftCertificate> optionalGiftCertificate = jdbcTemplate.query("SELECT * FROM gift_certificate WHERE id =?",new Object[]{id},new BeanPropertyRowMapper<>(GiftCertificate.class))
                 .stream().findAny();
         if(optionalGiftCertificate.isEmpty()){
             return optionalGiftCertificate;

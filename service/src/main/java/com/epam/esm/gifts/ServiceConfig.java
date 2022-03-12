@@ -1,4 +1,4 @@
-package com.epam.esm.gifts.config;
+package com.epam.esm.gifts;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;

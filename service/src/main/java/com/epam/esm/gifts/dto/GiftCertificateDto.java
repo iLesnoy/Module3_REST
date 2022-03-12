@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class GiftCertificateDto {
+
     private long id;
     /*@NotEmpty
     @Size(min = 2, max = 65, message = "Name should be between 2 and 65 characters")*/

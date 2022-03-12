@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public class GiftCertificateServiceImpl implements GiftCertificateService {
 
@@ -39,7 +40,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
-        if(giftCertificateDto == null){
+        if (giftCertificateDto == null) {
             throw new EntityCreationException();
         }
         checkEntityValidation(giftCertificateDto, GiftCertificateValidator.ActionType.INSERT);
@@ -51,12 +52,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
-        if(giftCertificateDto == null){
+        if (giftCertificateDto == null) {
             throw new EntityNotFoundException();
         }
         checkEntityValidation(giftCertificateDto, GiftCertificateValidator.ActionType.UPDATE);
         GiftCertificate certificate = dtoToGiftCertificateConverter.convert(giftCertificateDto);
-        giftCertificateDao.update(id,certificate);
+        giftCertificateDao.update(id, certificate);
         return certificateToDtoConverter.convert(certificate);                 ///////////////////////DELETE??????????????????????????????
     }
 
@@ -68,12 +69,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional
-    public void delete(Long id) {
-        if(id == null){
-            throw new EntityNotFoundException();
-        } else {
+    public GiftCertificateDto delete(Long id) {
+        Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(id);
+        if (optionalGiftCertificate.isPresent()) {
             giftCertificateDao.deleteById(id);
+            return certificateToDtoConverter.convert(optionalGiftCertificate.get());
         }
+        throw new EntityNotFoundException();
     }
 
     private void updateTagListInCertificate(Long id, List<TagDto> tags) {
@@ -83,20 +85,21 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             giftCertificateDao.addTagsToCertificate(id, updatedTagList);
         }
     }
+
     private void checkEntityValidation(GiftCertificateDto certificateDto, GiftCertificateValidator.ActionType actionType) throws EntityDateValidationException {
-        if(!certificateValidator.isNameValid(certificateDto.getName(),actionType)){
+        if (!certificateValidator.isNameValid(certificateDto.getName(), actionType)) {
             throw new EntityNameValidationException();
         }
-        if(!certificateValidator.isDescriptionValid(certificateDto.getDescription(),actionType)){
+        if (!certificateValidator.isDescriptionValid(certificateDto.getDescription(), actionType)) {
             throw new EntityDescriptionValidationException();
         }
-        if(!certificateValidator.isPriceValid(certificateDto.getPrice(),actionType)){
+        if (!certificateValidator.isPriceValid(certificateDto.getPrice(), actionType)) {
             throw new EntityPriceValidationException();
         }
-        if(!certificateValidator.isDurationValid(certificateDto.getDuration(),actionType)){
+        if (!certificateValidator.isDurationValid(certificateDto.getDuration(), actionType)) {
             throw new EntityDurationValidationException();
         }
-        if(!certificateValidator.isTagListValid(certificateDto.getTags(),actionType)){
+        if (!certificateValidator.isTagListValid(certificateDto.getTags(), actionType)) {
             throw new EntityTagNameValidationException();
         }
     }
