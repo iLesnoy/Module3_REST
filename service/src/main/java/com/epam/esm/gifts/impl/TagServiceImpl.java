@@ -10,6 +10,7 @@ import com.epam.esm.gifts.dao.TagDao;
 import com.epam.esm.gifts.dto.TagDto;
 import com.epam.esm.gifts.exception.EntityCreationException;
 import com.epam.esm.gifts.exception.EntityNameValidationException;
+import com.epam.esm.gifts.exception.EntityNotFoundException;
 import com.epam.esm.gifts.model.Tag;
 import com.epam.esm.gifts.validator.GiftCertificateValidator;
 import com.epam.esm.gifts.validator.TagValidator;
@@ -41,9 +42,9 @@ public class TagServiceImpl implements TagService {
     @Transactional
     public TagDto create(TagDto tagDto) {
         Optional<Tag> optionalTag = tagDao.findById(tagDto.getId());
-        if(!tagValidator.isNameValid(tagDto.getName(),INSERT)){
-            if(optionalTag.isEmpty()){
-                 return tagToDtoConverter.convert(tagDao.create(dtoToTagConverter.convert(tagDto)));
+        if (!tagValidator.isNameValid(tagDto.getName(), INSERT)) {
+            if (optionalTag.isEmpty()) {
+                return tagToDtoConverter.convert(tagDao.create(dtoToTagConverter.convert(tagDto)));
             }
             throw new EntityCreationException();
         }
@@ -53,18 +54,32 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public TagDto update(Long id, TagDto tagDto) {
-        return null;
+        Optional<Tag> optionalTag = tagDao.findById(id);
+        if (optionalTag.isPresent()) {
+            if (!tagValidator.isNameValid(tagDto.getName(), INSERT)) {
+                tagDao.update(id, dtoToTagConverter.convert(tagDto));
+                return tagToDtoConverter.convert(optionalTag.get());
+            }
+            throw new EntityNameValidationException();
+        }
+        throw new EntityNotFoundException();
     }
+
 
     @Override
     @Transactional
     public TagDto findById(Long id) {
-        return null;
+        return tagDao.findById(id).map(tagToDtoConverter::convert).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override
     @Transactional
     public TagDto delete(Long id) {
-        return null;
+        Optional<Tag> optionalTag = tagDao.findById(id);
+        if (optionalTag.isPresent()) {
+            tagDao.deleteById(id);
+            return tagToDtoConverter.convert(optionalTag.get());
+        }
+        throw new EntityNotFoundException();
     }
 }
