@@ -16,9 +16,9 @@ public class DtoToGiftCertificateConverter implements Converter<GiftCertificateD
     }
 
     @Override
-    public GiftCertificate convert(GiftCertificateDto source) {
-        return new GiftCertificate(source.getId(), source.getName()
-                , source.getDescription(), source.getPrice(), source.getDuration(), source.getCreateDate()
-                , source.getLastUpdateDate(), source.getTags().stream().map(dtoToTagConverter::convert).toList());
+    public GiftCertificate convert(GiftCertificateDto certificateDto) {
+        return new GiftCertificate(certificateDto.getId(), certificateDto.getName()
+                , certificateDto.getDescription(), certificateDto.getPrice(), certificateDto.getDuration(), certificateDto.getCreateDate()
+                , certificateDto.getLastUpdateDate(), certificateDto.getTags().stream().map(dtoToTagConverter::convert).toList());
     }
 }

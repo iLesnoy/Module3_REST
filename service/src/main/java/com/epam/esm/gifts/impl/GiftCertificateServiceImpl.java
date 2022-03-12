@@ -4,41 +4,100 @@ import com.epam.esm.gifts.GiftCertificateService;
 import com.epam.esm.gifts.converter.DtoToGiftCertificateConverter;
 import com.epam.esm.gifts.converter.DtoToTagConverter;
 import com.epam.esm.gifts.converter.GiftCertificateToDtoConverter;
+import com.epam.esm.gifts.dao.GiftCertificateDao;
 import com.epam.esm.gifts.dto.GiftCertificateDto;
+import com.epam.esm.gifts.dto.TagDto;
+import com.epam.esm.gifts.exception.*;
+import com.epam.esm.gifts.model.GiftCertificate;
+import com.epam.esm.gifts.model.Tag;
+import com.epam.esm.gifts.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 public class GiftCertificateServiceImpl implements GiftCertificateService {
 
 
+    private GiftCertificateValidator certificateValidator;
     private DtoToGiftCertificateConverter dtoToGiftCertificateConverter;
-    private GiftCertificateToDtoConverter certificate;
-    private DtoToTagConverter tag;
+    private GiftCertificateToDtoConverter certificateToDtoConverter;
+    private DtoToTagConverter dtoToTagConverter;
+    private GiftCertificateDao giftCertificateDao;
 
     @Autowired
-    public GiftCertificateServiceImpl(DtoToGiftCertificateConverter dtoToGiftCertificateConverter,
-                                      GiftCertificateToDtoConverter certificate,DtoToTagConverter tag) {
+    public GiftCertificateServiceImpl(GiftCertificateValidator certificateValidator, DtoToGiftCertificateConverter dtoToGiftCertificateConverter,
+                                      GiftCertificateToDtoConverter certificateToDtoConverter,
+                                      DtoToTagConverter dtoToTagConverter, GiftCertificateDao giftCertificateDao) {
+        this.certificateValidator = certificateValidator;
         this.dtoToGiftCertificateConverter = dtoToGiftCertificateConverter;
-        this.certificate = certificate;
-        this.tag = tag;
+        this.certificateToDtoConverter = certificateToDtoConverter;
+        this.dtoToTagConverter = dtoToTagConverter;
+        this.giftCertificateDao = giftCertificateDao;
     }
 
     @Override
+    @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
-        return null;
+        if(giftCertificateDto == null){
+            throw new EntityCreationException();
+        }
+        checkEntityValidation(giftCertificateDto, GiftCertificateValidator.ActionType.INSERT);
+        GiftCertificate certificate = dtoToGiftCertificateConverter.convert(giftCertificateDto);
+        giftCertificateDao.create(certificate);
+        return certificateToDtoConverter.convert(certificate);
     }
 
     @Override
+    @Transactional
     public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
-        return null;
+        if(giftCertificateDto == null){
+            throw new EntityNotFoundException();
+        }
+        checkEntityValidation(giftCertificateDto, GiftCertificateValidator.ActionType.UPDATE);
+        GiftCertificate certificate = dtoToGiftCertificateConverter.convert(giftCertificateDto);
+        giftCertificateDao.update(id,certificate);
+        return certificateToDtoConverter.convert(certificate);                 ///////////////////////DELETE??????????????????????????????
     }
 
     @Override
+    @Transactional
     public GiftCertificateDto findById(Long id) {
-        return null;
+        return giftCertificateDao.findById(id).map(certificateToDtoConverter::convert).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override
-    public GiftCertificateDto delete(Long id) {
-        return null;
+    @Transactional
+    public void delete(Long id) {
+        if(id == null){
+            throw new EntityNotFoundException();
+        } else {
+            giftCertificateDao.deleteById(id);
+        }
+    }
+
+    private void updateTagListInCertificate(Long id, List<TagDto> tags) {
+        if (!tags.isEmpty()) {
+            List<Tag> updatedTagList = tags.stream().map(dtoToTagConverter::convert).toList();
+            giftCertificateDao.deleteAllTagsFromCertificate(id);
+            giftCertificateDao.addTagsToCertificate(id, updatedTagList);
+        }
+    }
+    private void checkEntityValidation(GiftCertificateDto certificateDto, GiftCertificateValidator.ActionType actionType) throws EntityDateValidationException {
+        if(!certificateValidator.isNameValid(certificateDto.getName(),actionType)){
+            throw new EntityNameValidationException();
+        }
+        if(!certificateValidator.isDescriptionValid(certificateDto.getDescription(),actionType)){
+            throw new EntityDescriptionValidationException();
+        }
+        if(!certificateValidator.isPriceValid(certificateDto.getPrice(),actionType)){
+            throw new EntityPriceValidationException();
+        }
+        if(!certificateValidator.isDurationValid(certificateDto.getDuration(),actionType)){
+            throw new EntityDurationValidationException();
+        }
+        if(!certificateValidator.isTagListValid(certificateDto.getTags(),actionType)){
+            throw new EntityTagNameValidationException();
+        }
     }
 }
