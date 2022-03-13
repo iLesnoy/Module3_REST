@@ -27,7 +27,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private GiftCertificateDao giftCertificateDao;
 
     @Autowired
-    public GiftCertificateServiceImpl(GiftCertificateValidator certificateValidator, DtoToGiftCertificateConverter dtoToGiftCertificateConverter,
+    public GiftCertificateServiceImpl(GiftCertificateValidator certificateValidator,
+                                      DtoToGiftCertificateConverter dtoToGiftCertificateConverter,
                                       GiftCertificateToDtoConverter certificateToDtoConverter,
                                       DtoToTagConverter dtoToTagConverter, GiftCertificateDao giftCertificateDao) {
         this.certificateValidator = certificateValidator;

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/certificates")
+@RequestMapping("/certificates")
 public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
@@ -30,7 +30,8 @@ public class GiftCertificateController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public GiftCertificateDto update(@PathVariable Long id, @RequestBody GiftCertificateDto giftCertificateDto) {
+    public GiftCertificateDto update(@PathVariable Long id,
+                                     @RequestBody GiftCertificateDto giftCertificateDto) {
         return giftCertificateService.update(id, giftCertificateDto);
     }
 

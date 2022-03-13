@@ -1,9 +1,6 @@
 package com.epam.esm.gifts.dao.impl;
 
-import com.epam.esm.gifts.dao.BaseDao;
 import com.epam.esm.gifts.dao.TagDao;
-import com.epam.esm.gifts.model.AbstractEntity;
-import com.epam.esm.gifts.model.GiftCertificate;
 import com.epam.esm.gifts.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -30,14 +27,14 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public List<Tag> show() {
-        return jdbcTemplate.query("",new BeanPropertyRowMapper<>(Tag.class));
+        return jdbcTemplate.query("SELECT * FROM tag",new BeanPropertyRowMapper<>(Tag.class));
     }
 
     @Override
     public Tag create(Tag tag) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement("INSERT_NEW_TAG", Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = con.prepareStatement("INSERT INTO tag (name) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, tag.getName());
             return ps;
         }, keyHolder);
@@ -47,7 +44,7 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public Optional<Tag> findById(Long id) {
-        Optional<Tag> optionalTag = jdbcTemplate.query("",new Object[]{id},new BeanPropertyRowMapper<>(Tag.class))
+        Optional<Tag> optionalTag = jdbcTemplate.query("SELECT * FROM tag WHERE id=?",new Object[]{id},new BeanPropertyRowMapper<>(Tag.class))
                 .stream().findAny();
         if(optionalTag.isEmpty()){
             return optionalTag;
@@ -68,7 +65,7 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public Tag findOrCreateTag(Tag tag) {
-        return jdbcTemplate.query("",new Object[]{tag.getName()},new BeanPropertyRowMapper<>(Tag.class))
+        return jdbcTemplate.query("SELECT * FROM tag WHRE name=?",new Object[]{tag.getName()},new BeanPropertyRowMapper<>(Tag.class))
                 .stream().findAny().orElseGet(() -> create(tag));
     }
 }
