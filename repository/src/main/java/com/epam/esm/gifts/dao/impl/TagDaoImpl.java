@@ -60,12 +60,12 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public void deleteById(Long id) {
-        jdbcTemplate.update("",id);
+        jdbcTemplate.update("DELETE FROM tag WHERE id=?",id);
     }
 
     @Override
     public Tag findOrCreateTag(Tag tag) {
-        return jdbcTemplate.query("SELECT * FROM tag WHRE name=?",new Object[]{tag.getName()},new BeanPropertyRowMapper<>(Tag.class))
+        return jdbcTemplate.query("SELECT * FROM tag WHERE name=?",new Object[]{tag.getName()},new BeanPropertyRowMapper<>(Tag.class))
                 .stream().findAny().orElseGet(() -> create(tag));
     }
 }
