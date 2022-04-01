@@ -46,7 +46,7 @@ public class TagDaoImpl implements TagDao {
     public Optional<Tag> findById(Long id) {
         Optional<Tag> optionalTag = jdbcTemplate.query("SELECT * FROM tag WHERE id=?",new Object[]{id},new BeanPropertyRowMapper<>(Tag.class))
                 .stream().findAny();
-        if(optionalTag.isEmpty()){
+        if(optionalTag.isPresent()){
             return optionalTag;
         } else {
             return Optional.empty();
@@ -55,7 +55,7 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public void update(long id,Tag updatedTag) {
-        jdbcTemplate.update("UPDATE Tag SET name =? WHERE id=?",updatedTag.getName(),id);
+        jdbcTemplate.update("UPDATE tag SET name =? WHERE id=?",updatedTag.getName(),id);
     }
 
     @Override

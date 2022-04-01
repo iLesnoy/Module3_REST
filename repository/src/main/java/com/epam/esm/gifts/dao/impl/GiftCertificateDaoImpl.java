@@ -61,12 +61,24 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     public Optional<GiftCertificate> findById(Long id) {
         Optional<GiftCertificate> optionalGiftCertificate = jdbcTemplate.query("SELECT * FROM gift_certificate WHERE id =?",new Object[]{id},new BeanPropertyRowMapper<>(GiftCertificate.class))
                 .stream().findAny();
-        if(optionalGiftCertificate.isEmpty()){
+        if(optionalGiftCertificate.isPresent()){
             return optionalGiftCertificate;
         } else {
             return Optional.empty();
         }
     }
+
+    /*@Override
+    public Optional<GiftCertificate> findById(Long id) {
+        Optional<GiftCertificate> optionalGiftCertificate = jdbcTemplate.query("SELECT gift_certificate.id FROM gift_certificate " +
+                        "JOIN tag ON gift_certificate.id == tag.id ",new Object[]{id},new BeanPropertyRowMapper<>(GiftCertificate.class))
+                .stream().findAny();
+        if(optionalGiftCertificate.isPresent()){
+            return optionalGiftCertificate;
+        } else {
+            return Optional.empty();
+        }
+    }*/
 
     @Override
     public void update(long id,GiftCertificate updatedCertificate) {

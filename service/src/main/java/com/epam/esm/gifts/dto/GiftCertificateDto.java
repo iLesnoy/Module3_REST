@@ -1,9 +1,12 @@
 package com.epam.esm.gifts.dto;
 
+import org.springframework.stereotype.Component;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Component
 public class GiftCertificateDto {
 
     private long id;

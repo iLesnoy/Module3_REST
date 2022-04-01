@@ -12,11 +12,13 @@ import com.epam.esm.gifts.model.GiftCertificate;
 import com.epam.esm.gifts.model.Tag;
 import com.epam.esm.gifts.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class GiftCertificateServiceImpl implements GiftCertificateService {
 
 
@@ -79,7 +81,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         throw new EntityNotFoundException();
     }
 
-    private void updateTagListInCertificate(Long id, List<TagDto> tags) {
+    @Transactional
+    public void updateTagListInCertificate(Long id, List<TagDto> tags) {
         if (!tags.isEmpty()) {
             List<Tag> updatedTagList = tags.stream().map(dtoToTagConverter::convert).toList();
             giftCertificateDao.deleteAllTagsFromCertificate(id);

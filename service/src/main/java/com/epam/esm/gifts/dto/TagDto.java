@@ -1,5 +1,8 @@
 package com.epam.esm.gifts.dto;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class TagDto {
     private long id;
     private String name;

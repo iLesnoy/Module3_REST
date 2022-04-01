@@ -15,24 +15,26 @@ import com.epam.esm.gifts.model.Tag;
 import com.epam.esm.gifts.validator.GiftCertificateValidator;
 import com.epam.esm.gifts.validator.TagValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 import static com.epam.esm.gifts.validator.GiftCertificateValidator.ActionType.INSERT;
 
+@Service
 public class TagServiceImpl implements TagService {
 
-    private TagValidator tagValidator;
+    private GiftCertificateValidator giftCertificateValidator;
     private DtoToTagConverter dtoToTagConverter;
     private TagToDtoConverter tagToDtoConverter;
     private TagDao tagDao;
 
     @Autowired
-    public TagServiceImpl(TagValidator tagValidator, DtoToTagConverter dtoToTagConverter,
+    public TagServiceImpl(GiftCertificateValidator giftCertificateValidator, DtoToTagConverter dtoToTagConverter,
                           TagToDtoConverter tagToDtoConverter,
                           TagDao tagDao) {
-        this.tagValidator = tagValidator;
+        this.giftCertificateValidator = giftCertificateValidator;
         this.tagToDtoConverter = tagToDtoConverter;
         this.dtoToTagConverter = dtoToTagConverter;
         this.tagDao = tagDao;
@@ -42,7 +44,7 @@ public class TagServiceImpl implements TagService {
     @Transactional
     public TagDto create(TagDto tagDto) {
         Optional<Tag> optionalTag = tagDao.findById(tagDto.getId());
-        if (!tagValidator.isNameValid(tagDto.getName(), INSERT)) {
+        if (!giftCertificateValidator.isNameValid(tagDto.getName(), INSERT)) {
             if (optionalTag.isEmpty()) {
                 return tagToDtoConverter.convert(tagDao.create(dtoToTagConverter.convert(tagDto)));
             }
@@ -56,7 +58,7 @@ public class TagServiceImpl implements TagService {
     public TagDto update(Long id, TagDto tagDto) {
         Optional<Tag> optionalTag = tagDao.findById(id);
         if (optionalTag.isPresent()) {
-            if (!tagValidator.isNameValid(tagDto.getName(), INSERT)) {
+            if (giftCertificateValidator.isNameValid(tagDto.getName(),INSERT)) {
                 tagDao.update(id, dtoToTagConverter.convert(tagDto));
                 return tagToDtoConverter.convert(optionalTag.get());
             }

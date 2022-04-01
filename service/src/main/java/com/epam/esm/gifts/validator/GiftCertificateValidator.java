@@ -1,11 +1,13 @@
 package com.epam.esm.gifts.validator;
 
 import com.epam.esm.gifts.dto.TagDto;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
+@Component
 public class GiftCertificateValidator {
 
     private final int MIN_PERIOD=1;
