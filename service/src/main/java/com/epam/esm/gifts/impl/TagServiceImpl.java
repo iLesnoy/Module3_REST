@@ -44,7 +44,7 @@ public class TagServiceImpl implements TagService {
     @Transactional
     public TagDto create(TagDto tagDto) {
         Optional<Tag> optionalTag = tagDao.findById(tagDto.getId());
-        if (!giftCertificateValidator.isNameValid(tagDto.getName(), INSERT)) {
+        if (giftCertificateValidator.isNameValid(tagDto.getName(), INSERT)) {
             if (optionalTag.isEmpty()) {
                 return tagToDtoConverter.convert(tagDao.create(dtoToTagConverter.convert(tagDto)));
             }
