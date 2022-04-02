@@ -22,11 +22,11 @@ import java.util.Optional;
 public class GiftCertificateServiceImpl implements GiftCertificateService {
 
 
-    private GiftCertificateValidator certificateValidator;
-    private DtoToGiftCertificateConverter dtoToGiftCertificateConverter;
-    private GiftCertificateToDtoConverter certificateToDtoConverter;
-    private DtoToTagConverter dtoToTagConverter;
-    private GiftCertificateDao giftCertificateDao;
+    private final GiftCertificateValidator certificateValidator;
+    private final DtoToGiftCertificateConverter dtoToGiftCertificateConverter;
+    private final GiftCertificateToDtoConverter certificateToDtoConverter;
+    private final DtoToTagConverter dtoToTagConverter;
+    private final GiftCertificateDao giftCertificateDao;
 
     @Autowired
     public GiftCertificateServiceImpl(GiftCertificateValidator certificateValidator,
@@ -49,6 +49,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         checkEntityValidation(giftCertificateDto, GiftCertificateValidator.ActionType.INSERT);
         GiftCertificate certificate = dtoToGiftCertificateConverter.convert(giftCertificateDto);
         giftCertificateDao.create(certificate);
+        List<Tag> addedTags = giftCertificateDao.addTagsToCertificate(certificate.getId(), certificate.getTags());
+        certificate.setTags(addedTags);
         return certificateToDtoConverter.convert(certificate);
     }
 
@@ -61,7 +63,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         checkEntityValidation(giftCertificateDto, GiftCertificateValidator.ActionType.UPDATE);
         GiftCertificate certificate = dtoToGiftCertificateConverter.convert(giftCertificateDto);
         giftCertificateDao.update(id, certificate);
-        return certificateToDtoConverter.convert(certificate);                 ///////////////////////DELETE??????????????????????????????
+        return certificateToDtoConverter.convert(certificate);
     }
 
     @Override
