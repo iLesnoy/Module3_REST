@@ -38,29 +38,29 @@ public class GiftCertificateValidator {
     public boolean isNameValid(String name,ActionType actionType){
         return actionType == ActionType.INSERT
                 ? isNotNullAndBlank(name) && name.matches(NAME_REGEX)
-                : !isNotNullAndBlank(name) && name.matches(NAME_REGEX);
+                : name == null || (!name.isBlank() && name.matches(NAME_REGEX));
     }
 
     public boolean isDescriptionValid(String description,ActionType actionType){
         return actionType == ActionType.INSERT
                 ? isNotNullAndBlank(description) && description.matches(DESCRIPTION_REGEX)
-                : !isNotNullAndBlank(description) && description.matches(PRICE_REGEX);
+                : description == null || (!description.isBlank() && description.matches(DESCRIPTION_REGEX));
     }
 
     public boolean isPriceValid(BigDecimal price,ActionType actionType){
         return actionType == ActionType.INSERT
                 ? price !=null && String.valueOf(price).matches(PRICE_REGEX)
-                : price ==null && String.valueOf(price).matches(PRICE_REGEX);
+                : price == null || String.valueOf(price.doubleValue()).matches(PRICE_REGEX);
     }
 
     public boolean isDurationValid(int duration,ActionType actionType){
         return actionType == ActionType.INSERT
                 ? duration >= MIN_PERIOD && duration <= MAX_PERIOD
-                : duration == 0 || duration < MIN_PERIOD && duration > MAX_PERIOD;
+                : duration == 0 || (duration >= MIN_PERIOD & duration <= MAX_PERIOD);
     }
 
     public boolean isSortOrderValid(String sortOrder){
-        return isNotNullAndBlank(sortOrder) || PROVIDED_SORT_ORDERS.contains(sortOrder.toLowerCase());
+        return sortOrder == null || PROVIDED_SORT_ORDERS.contains(sortOrder.toLowerCase());
     }
 
 }
