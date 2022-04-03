@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 
 @Component
 public class GiftCertificateRowMapper implements RowMapper<GiftCertificate> {
+
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
 
     @Override
