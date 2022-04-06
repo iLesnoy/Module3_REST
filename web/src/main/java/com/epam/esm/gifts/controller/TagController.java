@@ -28,6 +28,11 @@ public class TagController {
         return tagService.findById(id);
     }
 
+    @GetMapping
+    public TagDto findOrCreateByName(@RequestBody TagDto tagDto) {
+        return tagService.findOrCreateTag(tagDto);
+    }
+
     @PutMapping
     public TagDto update(@RequestBody TagDto tagDto) {
         return tagService.update(tagDto.getId(),tagDto);
