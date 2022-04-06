@@ -2,6 +2,7 @@ package com.epam.esm.gifts;
 
 
 import com.epam.esm.gifts.dto.TagDto;
+import com.epam.esm.gifts.model.Tag;
 
 public interface TagService {
 
@@ -12,4 +13,6 @@ public interface TagService {
     TagDto findById(Long id);
 
     TagDto delete(Long id);
+
+    TagDto findOrCreateTag(TagDto tagDto);
 }
