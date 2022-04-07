@@ -1,4 +1,4 @@
-package com.epam.esm.gifts.config;
+package com.epam.esm.gifts.dao.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -13,13 +13,13 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 
 @Configuration
-@ComponentScan("com.epam.esm.gifts")
+@ComponentScan("com.epam.esm.gifts.dao")
 public class TestConfig {
     private static final String SQL_SETUP = "classpath:db_setup.sql";
     private static final String SQL_INIT = "classpath:db_init.sql";
 
     @Bean
-    @Profile("dev")
+    @Profile("test")
     public EmbeddedDatabase embeddedDatabase() {
         EmbeddedDatabaseBuilder databaseBuilder = new EmbeddedDatabaseBuilder();
         return databaseBuilder
