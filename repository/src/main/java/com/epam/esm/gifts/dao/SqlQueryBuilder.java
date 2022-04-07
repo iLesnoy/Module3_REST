@@ -30,12 +30,9 @@ public class SqlQueryBuilder {
                     .append(SPACE)
                     .append(Objects.requireNonNullElse(orderSort, DEFAULT_SORT))
                     .append(COMMA_SIGN));
-            System.out.println(resultQuery);
             resultQuery.deleteCharAt(resultQuery.length() - 2);
-            System.out.println(resultQuery);
         } else {
             resultQuery.append(GIFT_ID).append(SPACE).append(Objects.requireNonNullElse(orderSort, DEFAULT_SORT));
-            System.out.println(resultQuery);
         }
         return resultQuery.toString();
     }
