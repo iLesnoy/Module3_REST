@@ -1,29 +1,28 @@
 package com.epam.esm.gifts.dao.impl;
 
-import com.epam.esm.gifts.config.TestConfig;
+import com.epam.esm.gifts.dao.config.TestConfig;
 import com.epam.esm.gifts.model.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
-                                                                    import java.util.Optional;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
-/*@ExtendWith(SpringExtension.class)*/
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestConfig.class})
-@Transactional
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 class TagDaoImplTest {
 
-    private static final long EXISTING_TAG_ID = 1;
-    private static final int EXPECTED_LIST_SIZE = 4;
-    private static final String CREATED_TAG_NAME = "newTag";
+    private static final long EXIST_TAG_ID = 1;
+    private static final int EXPECT_LIST_SIZE = 4;
+    private static final String CREATED_TAG_NAME = "tag";
 
     private final TagDaoImpl tagDao;
 
@@ -40,68 +39,69 @@ class TagDaoImplTest {
 
     @Test
     void findById() {
-        Optional<Tag> actual = tagDao.findById(EXISTING_TAG_ID);
+        Optional<Tag> actual = tagDao.findById(EXIST_TAG_ID);
         assertTrue(actual.isPresent());
     }
 
     @Test
-    void FindByIdReturnsEmptyWithNonExistingTag() {
+    void FindByIdReturnsEmptyNotExistingTag() {
         Optional<Tag> actual = tagDao.findById(100L);
         assertTrue(actual.isEmpty());
     }
 
     @Test
-    void findAll() {
+    void findAllTags() {
         List<Tag> tags = tagDao.show();
-        assertEquals(EXPECTED_LIST_SIZE, tags.size());
+        assertEquals(EXPECT_LIST_SIZE, tags.size());
     }
 
     @Test
-    void delete() {
+    void deleteById() {
         int condition = tagDao.deleteById(3L);
         assertTrue(condition == 1);
     }
 
     @Test
-    void deleteReturnsFalseWithNonExistingTag() {
+    void deleteReturnFalseNotExistingTag() {
         int condition = tagDao.deleteById(100L);
-        assertFalse(condition == 0);
+        System.out.println(condition);
+        assertFalse(condition != 0);
     }
 
     @Test
-    void isExisting() {
-        boolean condition = tagDao.isUsed(EXISTING_TAG_ID);
+    void isInUseTag() {
+        boolean condition = tagDao.isUsed(EXIST_TAG_ID);
         assertTrue(condition);
     }
 
     @Test
-    void isExistingReturnsFalseWithNonExistingTag() {
-        boolean condition = tagDao.isUsed(EXISTING_TAG_ID);
+    void isExistingReturnsFalseNotExistingTag() {
+        boolean condition = tagDao.isUsed(999L);
         assertFalse(condition);
     }
 
     @Test
     void isUsed() {
-        boolean condition = tagDao.isUsed(EXISTING_TAG_ID);
+        boolean condition = tagDao.isUsed(EXIST_TAG_ID);
         assertTrue(condition);
     }
 
     @Test
-    void isUsedReturnsFalseWithNonExistingTag() {
+    void isUsedReturnsFalseNotExistingTag() {
         boolean condition = tagDao.isUsed(100L);
         assertFalse(condition);
     }
 
     @Test
-    void findOrCreateTagWithExistingTag() {
-        Tag expected = new Tag(2, "HR");
+    void findOrCreateTagNotExistingTag() {
+        Tag expected = new Tag(2, "REST");
         Tag actual = tagDao.findOrCreateTag(expected);
         assertEquals(expected, actual);
     }
 
     @Test
-    void findOrCreateTagWithNonExistingTag() {
-        Tag expected = new Tag(4, "newTagName");
+    void findOrCreateTagWithNotExistingTag() {
+        Tag expected = new Tag(500, "simpleTag");
         Tag actual = tagDao.findOrCreateTag(expected);
         assertEquals(expected, actual);
     }
