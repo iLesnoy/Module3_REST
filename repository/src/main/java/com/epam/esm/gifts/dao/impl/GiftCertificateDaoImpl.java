@@ -1,6 +1,7 @@
 package com.epam.esm.gifts.dao.impl;
 
 import com.epam.esm.gifts.dao.GiftCertificateDao;
+import com.epam.esm.gifts.dao.SqlQueryBuilder;
 import com.epam.esm.gifts.dao.TagDao;
 import com.epam.esm.gifts.dao.mapper.GiftCertificateExtractor;
 import com.epam.esm.gifts.model.GiftCertificate;
@@ -66,34 +67,33 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         List<GiftCertificate> giftCertificate = jdbcTemplate.query(FIND_GIFT_CERTIFICATE_BY_ID, extractor, id);
         return !giftCertificate.isEmpty() ? Optional.of(giftCertificate.get(0)) : Optional.empty();
     }
-    /*@Override
-    public Optional<GiftCertificate> findById(Long id) {
-        Optional<GiftCertificate> optionalGiftCertificate = jdbcTemplate.query(FIND_GIFT_CERTIFICATE_BY_ID,new Object[]{id},
-                        new BeanPropertyRowMapper<>(GiftCertificate.class))
-                .stream().findAny();
-        return !optionalGiftCertificate.isEmpty() ? optionalGiftCertificate : Optional.empty();
-    }*/
 
     @Override
-    public void update(long id,GiftCertificate updatedCertificate) {
-        jdbcTemplate.update("UPDATE gift_certificate SET name=?,description=?,price=?,duration=?,create_date=?,last_update_date=? WHERE id=?",
-                                   updatedCertificate.getName(),updatedCertificate.getDescription(),
-                                   updatedCertificate.getPrice(), updatedCertificate.getDuration(),
-                                   updatedCertificate.getCreateDate(),LocalDateTime.now(),
-                                   id);
+    public List<GiftCertificate> findByParameters(String tagName, String searchPart,
+                                                  String description, List<String> sortingFieldList, String orderSort) {
+        String query = SqlQueryBuilder.buildCertificateQueryForSearchAndSort(tagName, searchPart, description, sortingFieldList, orderSort);
+        return jdbcTemplate.query(query, extractor);
     }
 
     @Override
-    public void deleteById(Long id) {
-        jdbcTemplate.update(DELETE_GIFT_CERTIFICATE_BY_ID,id);
+    public int update(long id,GiftCertificate updatedCertificate) {
+        return jdbcTemplate.update(UPDATE_GIFT_BY_ID,
+                                   updatedCertificate.getName(), updatedCertificate.getDescription(),
+                                   updatedCertificate.getPrice(), updatedCertificate.getDuration(),
+                /*need FIX */      LocalDateTime.now(),LocalDateTime.now(), id);
+    }
+
+    @Override
+    public int deleteById(Long id) {
+        return jdbcTemplate.update(DELETE_GIFT_CERTIFICATE_BY_ID,id);
     }
 
     @Override
     public List<Tag> addTagsToCertificate(Long id, List<Tag> addedTagList) {
         addedTagList = addedTagList.stream().map(tagDao::findOrCreateTag).toList();
         for (Tag tag : addedTagList) {
-            jdbcTemplate.update(con -> {
-                PreparedStatement statement = con.prepareStatement(ADD_TAG_TO_GIFT_CERTIFICATE);
+            jdbcTemplate.update(gift -> {
+                PreparedStatement statement = gift.prepareStatement(ADD_TAG_TO_GIFT_CERTIFICATE);
                 statement.setLong(1, id);
                 statement.setLong(2, tag.getId());
                 return statement;

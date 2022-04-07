@@ -57,19 +57,29 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
-        if (giftCertificateDto == null) {
-            throw new EntityNotFoundException();
+        if (giftCertificateDto == null || id == null) {
+            throw new EntityCreationException();
         }
         checkEntityValidation(giftCertificateDto, GiftCertificateValidator.ActionType.UPDATE);
         GiftCertificate certificate = dtoToGiftCertificateConverter.convert(giftCertificateDto);
         giftCertificateDao.update(id, certificate);
-        return certificateToDtoConverter.convert(certificate);
+        return findById(id);
     }
 
     @Override
     @Transactional
     public GiftCertificateDto findById(Long id) {
         return giftCertificateDao.findById(id).map(certificateToDtoConverter::convert).orElseThrow(EntityNotFoundException::new);
+    }
+
+    @Override
+    public List<GiftCertificateDto> searchByParameters(String tagName, String searchPart, String description,
+                                                       List<String> sortingFieldList, String orderSort) {
+        if (certificateValidator.isSortOrderValid(orderSort)) {
+            List<GiftCertificate> giftCertificateList = giftCertificateDao.findByParameters(tagName, searchPart, description, sortingFieldList, orderSort);
+            return giftCertificateList.stream().map(certificateToDtoConverter::convert).toList();
+        }
+        throw new EntityNameValidationException();
     }
 
     @Override
@@ -83,13 +93,27 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         throw new EntityNotFoundException();
     }
 
+    @Override
+    public boolean deleteAllTagsFromCertificate(Long id) {
+        Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(id);
+        if(optionalGiftCertificate.isPresent()){
+            return giftCertificateDao.deleteAllTagsFromCertificate(id);
+        }
+        throw new EntityNotFoundException();
+    }
+
     @Transactional
-    public void updateTagListInCertificate(Long id, List<TagDto> tags) {
+    public List<Tag> updateTagListInCertificate(Long id, List<TagDto> tags) {
+        List<Tag> updatedTags;
+
         if (!tags.isEmpty()) {
             List<Tag> updatedTagList = tags.stream().map(dtoToTagConverter::convert).toList();
             giftCertificateDao.deleteAllTagsFromCertificate(id);
-            giftCertificateDao.addTagsToCertificate(id, updatedTagList);
+            updatedTags = giftCertificateDao.addTagsToCertificate(id, updatedTagList);
+        } else {
+            throw new EntityCreationException();
         }
+        return updatedTags;
     }
 
     private void checkEntityValidation(GiftCertificateDto certificateDto, GiftCertificateValidator.ActionType actionType) throws EntityDateValidationException {

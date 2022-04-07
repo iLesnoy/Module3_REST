@@ -10,5 +10,7 @@ public interface GiftCertificateDao extends BaseDao<GiftCertificate> {
 
     List<Tag> addTagsToCertificate(Long id, List<Tag> addedTagList);
 
+    List<GiftCertificate> findByParameters(String tagName, String searchPart, String description, List<String> sortingFieldList, String orderSort);
+
     boolean deleteAllTagsFromCertificate(Long id);
 }

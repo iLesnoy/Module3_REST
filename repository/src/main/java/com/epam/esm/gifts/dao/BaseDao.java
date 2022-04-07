@@ -13,7 +13,7 @@ public interface BaseDao<T extends AbstractEntity> {
 
     Optional<T> findById(Long id);
 
-    void update(long id,T t);
+    int update(long id,T t);
 
-    void deleteById(Long id);
+    int deleteById(Long id);
 }
