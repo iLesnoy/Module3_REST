@@ -3,7 +3,7 @@ Business requirements
 Develop web service for Gift Certificates system with the following entities (many-to-many): Schema
 ![image](https://user-images.githubusercontent.com/87644515/162612821-d4248d32-4519-4635-8b41-752cf71aab1c.png)
 --
-CreateDate, LastUpdateDate - format ISO 8601 (https://en.wikipedia.org/wiki/ISO_8601). Example: 2018-08-29T06:12:15.156. More discussion here: https://stackoverflow.com/questions/3914404/how-to-get-current-moment-in-iso-8601-format-with-date-hour-and-minute
+-CreateDate, LastUpdateDate - format ISO 8601 (https://en.wikipedia.org/wiki/ISO_8601). Example: 2018-08-29T06:12:15.156. More discussion here: https://stackoverflow.com/questions/3914404/how-to-get-current-moment-in-iso-8601-format-with-date-hour-and-minute
 Duration - in days (expiration period)
 The system should expose REST APIs to perform the following operations:
 CRUD operations for GiftCertificate. If new tags are passed during creation/modification – they should be created in the DB. For update operation - update only fields, that pass in request, others should not be updated. Batch insert is out of scope.
