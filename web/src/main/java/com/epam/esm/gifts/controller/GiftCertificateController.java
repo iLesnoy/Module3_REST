@@ -32,7 +32,7 @@ public class GiftCertificateController {
     @ResponseStatus(HttpStatus.OK)
     public GiftCertificateDto update(@PathVariable Long id,
                                      @RequestBody GiftCertificateDto giftCertificateDto) {
-        return giftCertificateService.update(id, giftCertificateDto);
+        return giftCertificateService.update(id,giftCertificateDto);
     }
 
     @GetMapping("/{id}")
@@ -40,9 +40,22 @@ public class GiftCertificateController {
         return giftCertificateService.findById(id);
     }
 
+    @GetMapping
+    public List<GiftCertificateDto> findByAttributes(@RequestParam(required = false, name = "tagName") String tagName,
+                                                     @RequestParam(required = false, name = "searchPart") String searchPart,
+                                                     @RequestParam(required = false, name = "description") String description,
+                                                     @RequestParam(required = false, name = "sortingFields") List<String> sortingFields,
+                                                     @RequestParam(required = false, name = "orderSort") String orderSort) {
+        return giftCertificateService.searchByParameters(tagName, searchPart, description, sortingFields, orderSort);
+    }
 
     @DeleteMapping("/{id}")
     public GiftCertificateDto deleteById(@PathVariable Long id) {
         return giftCertificateService.delete(id);
+    }
+
+    @DeleteMapping("deleteTags/{id}")
+    private boolean deleteAllTagsFromGiftById(@PathVariable Long id){
+        return giftCertificateService.deleteAllTagsFromCertificate(id);
     }
 }

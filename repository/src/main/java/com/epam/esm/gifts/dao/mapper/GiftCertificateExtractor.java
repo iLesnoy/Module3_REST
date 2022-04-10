@@ -16,6 +16,7 @@ import java.util.Map;
 
 @Component
 public class GiftCertificateExtractor implements ResultSetExtractor<List<GiftCertificate>> {
+
     private final GiftCertificateRowMapper rowMapper;
 
     @Autowired
@@ -26,6 +27,7 @@ public class GiftCertificateExtractor implements ResultSetExtractor<List<GiftCer
     @Override
     public List<GiftCertificate> extractData(ResultSet rs) throws SQLException, DataAccessException {
         Map<Long, GiftCertificate> giftCertificates = new LinkedHashMap<>();
+
         while (rs.next()) {
             Long key = rs.getLong("gift_certificate.id");
             giftCertificates.putIfAbsent(key, rowMapper.mapRow(rs, rs.getRow()));

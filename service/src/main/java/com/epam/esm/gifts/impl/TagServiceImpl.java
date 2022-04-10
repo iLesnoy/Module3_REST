@@ -1,19 +1,13 @@
 package com.epam.esm.gifts.impl;
 
 import com.epam.esm.gifts.TagService;
-import com.epam.esm.gifts.converter.DtoToGiftCertificateConverter;
 import com.epam.esm.gifts.converter.DtoToTagConverter;
-import com.epam.esm.gifts.converter.GiftCertificateToDtoConverter;
 import com.epam.esm.gifts.converter.TagToDtoConverter;
-import com.epam.esm.gifts.dao.GiftCertificateDao;
 import com.epam.esm.gifts.dao.TagDao;
 import com.epam.esm.gifts.dto.TagDto;
-import com.epam.esm.gifts.exception.EntityCreationException;
-import com.epam.esm.gifts.exception.EntityNameValidationException;
-import com.epam.esm.gifts.exception.EntityNotFoundException;
+import com.epam.esm.gifts.exception.*;
 import com.epam.esm.gifts.model.Tag;
 import com.epam.esm.gifts.validator.GiftCertificateValidator;
-import com.epam.esm.gifts.validator.TagValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,10 +19,10 @@ import static com.epam.esm.gifts.validator.GiftCertificateValidator.ActionType.I
 @Service
 public class TagServiceImpl implements TagService {
 
-    private GiftCertificateValidator giftCertificateValidator;
-    private DtoToTagConverter dtoToTagConverter;
-    private TagToDtoConverter tagToDtoConverter;
-    private TagDao tagDao;
+    private final GiftCertificateValidator giftCertificateValidator;
+    private final DtoToTagConverter dtoToTagConverter;
+    private final TagToDtoConverter tagToDtoConverter;
+    private final TagDao tagDao;
 
     @Autowired
     public TagServiceImpl(GiftCertificateValidator giftCertificateValidator, DtoToTagConverter dtoToTagConverter,
@@ -58,7 +52,7 @@ public class TagServiceImpl implements TagService {
     public TagDto update(Long id, TagDto tagDto) {
         Optional<Tag> optionalTag = tagDao.findById(id);
         if (optionalTag.isPresent()) {
-            if (giftCertificateValidator.isNameValid(tagDto.getName(),INSERT)) {
+            if (giftCertificateValidator.isNameValid(tagDto.getName(), INSERT)) {
                 tagDao.update(id, dtoToTagConverter.convert(tagDto));
                 return tagToDtoConverter.convert(optionalTag.get());
             }
@@ -77,11 +71,21 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public TagDto delete(Long id) {
-        Optional<Tag> optionalTag = tagDao.findById(id);
-        if (optionalTag.isPresent()) {
-            tagDao.deleteById(id);
-            return tagToDtoConverter.convert(optionalTag.get());
+        TagDto deletedTag = findById(id);
+        if (tagDao.isUsed(id)) {
+            throw new EntityInUseException();
+        } else if (tagDao.deleteById(id) != 1) {
+            throw new InternalServerException();
         }
-        throw new EntityNotFoundException();
+        return deletedTag;
+    }
+
+    @Override
+    @Transactional
+    public TagDto findOrCreateTag(TagDto tagDto) {
+        if (giftCertificateValidator.isNameValid(tagDto.getName(), INSERT)) {
+            return tagToDtoConverter.convert(tagDao.findOrCreateTag(dtoToTagConverter.convert(tagDto)));
+        }
+        throw new EntityNameValidationException();
     }
 }

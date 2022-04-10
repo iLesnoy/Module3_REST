@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.epam.esm.gifts.dao.constants.SqlQuery.*;
+
 @Component
 public class TagDaoImpl implements TagDao {
 
@@ -27,14 +29,14 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public List<Tag> show() {
-        return jdbcTemplate.query("SELECT * FROM tag",new BeanPropertyRowMapper<>(Tag.class));
+        return jdbcTemplate.query(FIND_ALL_TAGS,new BeanPropertyRowMapper<>(Tag.class));
     }
 
     @Override
     public Tag create(Tag tag) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement("INSERT INTO tag (name) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = con.prepareStatement(INSERT_TAG, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, tag.getName());
             return ps;
         }, keyHolder);
@@ -44,28 +46,29 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public Optional<Tag> findById(Long id) {
-        Optional<Tag> optionalTag = jdbcTemplate.query("SELECT * FROM tag WHERE id=?",new Object[]{id},new BeanPropertyRowMapper<>(Tag.class))
+        Optional<Tag> optionalTag = jdbcTemplate.query(FIND_TAG_BY_ID,new Object[]{id},new BeanPropertyRowMapper<>(Tag.class))
                 .stream().findAny();
-        if(optionalTag.isPresent()){
-            return optionalTag;
-        } else {
-            return Optional.empty();
-        }
+        return optionalTag.isPresent() ? optionalTag: Optional.empty();
     }
 
     @Override
-    public void update(long id,Tag updatedTag) {
-        jdbcTemplate.update("UPDATE tag SET name =? WHERE id=?",updatedTag.getName(),id);
+    public int update(long id, Tag updatedTag) {
+        return jdbcTemplate.update(UPDATE_TAG_BY_ID,updatedTag.getName(),id);
     }
 
     @Override
-    public void deleteById(Long id) {
-        jdbcTemplate.update("DELETE FROM tag WHERE id=?",id);
+    public int deleteById(Long id) {
+        return jdbcTemplate.update(DELETE_TAG_BY_ID,id);
     }
 
     @Override
     public Tag findOrCreateTag(Tag tag) {
-        return jdbcTemplate.query("SELECT * FROM tag WHERE name=?",new Object[]{tag.getName()},new BeanPropertyRowMapper<>(Tag.class))
+        return jdbcTemplate.query(FIND_TAG_BY_NAME,new Object[]{tag.getName()},new BeanPropertyRowMapper<>(Tag.class))
                 .stream().findAny().orElseGet(() -> create(tag));
+    }
+
+    @Override
+    public boolean isUsed(Long id) {
+        return jdbcTemplate.queryForObject(COUNT_TAG_IN_USE, Integer.class, id) > 0;
     }
 }

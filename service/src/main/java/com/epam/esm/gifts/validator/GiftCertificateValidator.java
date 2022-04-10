@@ -2,6 +2,7 @@ package com.epam.esm.gifts.validator;
 
 import com.epam.esm.gifts.dto.TagDto;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -26,11 +27,11 @@ public class GiftCertificateValidator {
     }
 
     public boolean isTagListValid(List<TagDto> tags, ActionType type) {
-        return type == ActionType.INSERT
-                ? !tags.isEmpty() && tags.stream()
+          return type == ActionType.INSERT
+                ? !CollectionUtils.isEmpty(tags) && tags.stream()
                 .map(tag -> tag != null && isNameValid(tag.getName(), ActionType.INSERT))
                 .filter(Boolean::booleanValue).count() == tags.size()
-                : tags.isEmpty() || tags.stream()
+                : CollectionUtils.isEmpty(tags) || tags.stream()
                 .map(tag -> tag != null && isNameValid(tag.getName(), ActionType.UPDATE))
                 .filter(Boolean::booleanValue).count() == tags.size();
     }
