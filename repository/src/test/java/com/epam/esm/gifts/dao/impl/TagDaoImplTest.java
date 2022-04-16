@@ -51,7 +51,7 @@ class TagDaoImplTest {
 
     @Test
     void findAllTags() {
-        List<Tag> tags = tagDao.show();
+        List<Tag> tags = tagDao.findAll();
         assertEquals(EXPECT_LIST_SIZE, tags.size());
     }
 

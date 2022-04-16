@@ -28,7 +28,7 @@ public class TagDaoImpl implements TagDao {
     }
 
     @Override
-    public List<Tag> show() {
+    public List<Tag> findAll() {
         return jdbcTemplate.query(FIND_ALL_TAGS,new BeanPropertyRowMapper<>(Tag.class));
     }
 

@@ -1,13 +1,12 @@
 package com.epam.esm.gifts.dao;
 
-import com.epam.esm.gifts.model.AbstractEntity;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface BaseDao<T extends AbstractEntity> {
+public interface BaseDao<T> {
 
-    List<T> show();
+    List<T> findAll();
 
     T create(T t);
 
