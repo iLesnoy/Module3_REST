@@ -69,7 +69,7 @@ class GiftCertificateServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        tag = new Tag(TAG_ID, TAG_NAME);
+        /*tag = new Tag(TAG_ID, TAG_NAME);
         tagDto = new TagDto(TAG_ID, TAG_NAME);
         tagList = new ArrayList<>(List.of(tag, tag, tag));
         tagDtoList = new ArrayList<>(List.of(tagDto, tagDto, tagDto));
@@ -78,7 +78,7 @@ class GiftCertificateServiceImplTest {
         expected = new GiftCertificateDto(CERTIFICATE_ID, CERTIFICATE_NAME, DESCRIPTION, PRICE, DURATION, CREATION_DATE
                 , LAST_UPDATE_DATE, tagDtoList);
         sortingFieldList = List.of("name", "price");
-        expectedList = List.of(expected, expected, expected);
+        expectedList = List.of(expected, expected, expected);*/
     }
 
     @Test

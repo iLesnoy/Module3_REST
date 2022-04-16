@@ -6,13 +6,13 @@ import java.util.Optional;
 
 public interface BaseDao<T> {
 
-    List<T> findAll();
+    List<T> findAll(Integer offset, Integer limit);
 
-    T create(T t);
+    void create(T t);
 
     Optional<T> findById(Long id);
 
-    int update(long id,T t);
+    void update(T t);
 
     int deleteById(Long id);
 }

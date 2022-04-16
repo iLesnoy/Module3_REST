@@ -9,6 +9,10 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -20,55 +24,51 @@ import static com.epam.esm.gifts.dao.constants.SqlQuery.*;
 @Component
 public class TagDaoImpl implements TagDao {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final EntityManager entityManager;
+    private final CriteriaBuilder criteriaBuilder;
 
     @Autowired
-    public TagDaoImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public TagDaoImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
+        this.criteriaBuilder = entityManager.getCriteriaBuilder();
     }
 
     @Override
-    public List<Tag> findAll() {
-        return jdbcTemplate.query(FIND_ALL_TAGS,new BeanPropertyRowMapper<>(Tag.class));
+    public List<Tag> findAll(Integer offset, Integer limit) {
+        CriteriaQuery<Tag> query = criteriaBuilder.createQuery(Tag.class);
+        Root<Tag> tagRoot = query.from(Tag.class);
+        query.select(tagRoot);
+        query.orderBy(criteriaBuilder.asc(tagRoot.get("id")));
+        return entityManager.createQuery(query).setFirstResult(offset).setMaxResults(limit).getResultList();
     }
 
     @Override
-    public Tag create(Tag tag) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(INSERT_TAG, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, tag.getName());
-            return ps;
-        }, keyHolder);
-        tag.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
-        return tag;
+    public void create(Tag tag) {
+        entityManager.persist(tag);
     }
 
     @Override
     public Optional<Tag> findById(Long id) {
-        Optional<Tag> optionalTag = jdbcTemplate.query(FIND_TAG_BY_ID,new Object[]{id},new BeanPropertyRowMapper<>(Tag.class))
-                .stream().findAny();
-        return optionalTag.isPresent() ? optionalTag: Optional.empty();
+        return Optional.empty();
     }
 
     @Override
-    public int update(long id, Tag updatedTag) {
-        return jdbcTemplate.update(UPDATE_TAG_BY_ID,updatedTag.getName(),id);
+    public void update(Tag tag) {
+        entityManager.merge(tag);
     }
 
     @Override
     public int deleteById(Long id) {
-        return jdbcTemplate.update(DELETE_TAG_BY_ID,id);
+        return 0;
     }
 
     @Override
     public Tag findOrCreateTag(Tag tag) {
-        return jdbcTemplate.query(FIND_TAG_BY_NAME,new Object[]{tag.getName()},new BeanPropertyRowMapper<>(Tag.class))
-                .stream().findAny().orElseGet(() -> create(tag));
+        return null;
     }
 
     @Override
     public boolean isUsed(Long id) {
-        return jdbcTemplate.queryForObject(COUNT_TAG_IN_USE, Integer.class, id) > 0;
+        return false;
     }
 }

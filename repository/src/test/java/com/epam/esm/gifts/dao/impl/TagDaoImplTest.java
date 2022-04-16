@@ -31,11 +31,7 @@ class TagDaoImplTest {
         this.tagDao = tagDao;
     }
 
-    @Test
-    void create() {
-        Tag actual = tagDao.create(new Tag(0, CREATED_TAG_NAME));
-        assertEquals(actual.getName(), CREATED_TAG_NAME);
-    }
+
 
     @Test
     void findById() {
@@ -49,11 +45,7 @@ class TagDaoImplTest {
         assertTrue(actual.isEmpty());
     }
 
-    @Test
-    void findAllTags() {
-        List<Tag> tags = tagDao.findAll();
-        assertEquals(EXPECT_LIST_SIZE, tags.size());
-    }
+
 
     @Test
     void deleteById() {
@@ -92,17 +84,5 @@ class TagDaoImplTest {
         assertFalse(condition);
     }
 
-    @Test
-    void findOrCreateTagNotExistingTag() {
-        Tag expected = new Tag(2, "REST");
-        Tag actual = tagDao.findOrCreateTag(expected);
-        assertEquals(expected, actual);
-    }
 
-    @Test
-    void findOrCreateTagWithNotExistingTag() {
-        Tag expected = new Tag(500, "simpleTag");
-        Tag actual = tagDao.findOrCreateTag(expected);
-        assertEquals(expected, actual);
-    }
 }

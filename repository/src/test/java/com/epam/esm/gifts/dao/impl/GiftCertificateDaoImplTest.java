@@ -48,18 +48,13 @@ class GiftCertificateDaoImplTest {
 
     @BeforeEach
     void setUp() {
-        tag = new Tag(TAG_ID, TAG_NAME);
+        /*tag = new Tag(TAG_ID, TAG_NAME);
         tagList = new ArrayList<>(List.of(tag, new Tag(2, "tag1"), new Tag(3, "tag3")));
         certificate = new GiftCertificate(CERTIFICATE_ID, CERTIFICATE_NAME, DESCRIPTION, PRICE, DURATION, CREATION_DATE
-                , LAST_UPDATE_DATE, tagList);
+                , LAST_UPDATE_DATE, tagList);*/
     }
 
 
-    @Test
-    void create() {
-        GiftCertificate actual = certificateDao.create(certificate);
-        assertEquals(actual.getName(), CERTIFICATE_NAME);
-    }
 
     @Test
     void findById() {

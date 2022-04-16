@@ -17,9 +17,14 @@ public class GiftCertificateToDtoConverter implements Converter<GiftCertificate,
     }
 
     @Override
+    public GiftCertificateDto convert(GiftCertificate source) {
+        return null;
+    }
+
+    /*@Override
     public GiftCertificateDto convert(GiftCertificate gift){
         return new GiftCertificateDto(gift.getId(), gift.getName()
                 , gift.getDescription(), gift.getPrice(), gift.getDuration(), gift.getCreateDate()
                 , gift.getLastUpdateDate(), gift.getTags().stream().map(tagToDtoConverter::convert).toList());
-    }
+    }*/
 }
