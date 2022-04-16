@@ -37,7 +37,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public List<GiftCertificate> show() {
+    public List<GiftCertificate> findAll() {
         return jdbcTemplate.query(FIND_ALL_GIFT_CERTIFICATES,new BeanPropertyRowMapper<>(GiftCertificate.class));
     }
 
@@ -80,7 +80,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         return jdbcTemplate.update(UPDATE_GIFT_BY_ID,
                                    updatedCertificate.getName(), updatedCertificate.getDescription(),
                                    updatedCertificate.getPrice(), updatedCertificate.getDuration(),
-                /*need FIX */      LocalDateTime.now(),LocalDateTime.now(), id);
+                                   LocalDateTime.now(),LocalDateTime.now(), id);
     }
 
     @Override
