@@ -26,12 +26,12 @@ class GiftCertificateValidatorTest {
     @ParameterizedTest
     @MethodSource("tagValues")
     void isTagListValid(List<TagDto> tag,boolean expected) {
-        boolean actual = validator.isTagListValid(tag, INSERT);
+        boolean actual = validator.isTagListValid(tag);
         assertEquals(actual,expected);
 
     }
 
-        private static Object[][] tagValues(){
+    /*    private static Object[][] tagValues(){
             return new Object[][] {
                     {List.of(new TagDto(7, "lenovo")),true},
                     {List.of(new TagDto(2, "hello")),true},
@@ -132,5 +132,5 @@ class GiftCertificateValidatorTest {
     void isOrderSortValidReturnsFalseWithInvalidArg(String orderSort) {
         boolean condition = validator.isSortOrderValid(orderSort);
         assertFalse(condition);
-    }
+    }*/
 }
