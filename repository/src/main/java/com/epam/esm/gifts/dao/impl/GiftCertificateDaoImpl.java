@@ -2,28 +2,37 @@ package com.epam.esm.gifts.dao.impl;
 
 import com.epam.esm.gifts.dao.GiftCertificateDao;
 import com.epam.esm.gifts.model.GiftCertificate;
-import com.epam.esm.gifts.model.Tag;
+import com.epam.esm.gifts.model.GiftCertificateAttribute;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.*;
 
 
-@Component
+@Repository
 public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
-    private EntityManager entityManager;
-    private CriteriaBuilder criteriaBuilder;
+    @PersistenceContext
+    private final EntityManager entityManager;
+    private final SqlQueryBuilder sqlQueryBuilder;
+    private final CriteriaBuilder criteriaBuilder;
 
     @Autowired
-    public GiftCertificateDaoImpl(EntityManager entityManager) {
+    public GiftCertificateDaoImpl(EntityManager entityManager, SqlQueryBuilder sqlQueryBuilder) {
         this.entityManager = entityManager;
+        this.sqlQueryBuilder = sqlQueryBuilder;
         this.criteriaBuilder = entityManager.getCriteriaBuilder();
+        this.sqlQueryBuilder.setCriteriaBuilder(criteriaBuilder);
     }
+
+
+
 
     @Override
     public List<GiftCertificate> findAll(Integer offset, Integer limit) {
@@ -35,13 +44,14 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public void create(GiftCertificate certificate) {
+    public GiftCertificate create(GiftCertificate certificate) {
         entityManager.persist(certificate);
+        return certificate;
     }
 
     @Override
     public Optional<GiftCertificate> findById(Long id) {
-        return Optional.empty();
+        return Optional.ofNullable(entityManager.find(GiftCertificate.class,id));
     }
 
     @Override
@@ -50,22 +60,22 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public int deleteById(Long id) {
-        return 0;
+    public void delete(GiftCertificate giftCertificate) {
+        entityManager.remove(giftCertificate);
     }
 
     @Override
-    public List<Tag> addTagsToCertificate(Long id, List<Tag> addedTagList) {
-        return null;
+    public Long findEntityNumber() {
+        CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
+        Root<GiftCertificate> root = query.from(GiftCertificate.class);
+        query.select(criteriaBuilder.count(root));
+        return entityManager.createQuery(query).getSingleResult();
     }
 
     @Override
-    public List<GiftCertificate> findByParameters(String tagName, String searchPart, String description, List<String> sortingFieldList, String orderSort) {
-        return null;
-    }
-
-    @Override
-    public boolean deleteAllTagsFromCertificate(Long id) {
-        return false;
+    public List<GiftCertificate> findByAttributes(GiftCertificateAttribute attribute, Integer offset, Integer limit) {
+        TypedQuery<GiftCertificate> query = entityManager
+                .createQuery(sqlQueryBuilder.giftSearchAndSortQuery(attribute));
+        return query.setFirstResult(offset).setMaxResults(limit).getResultList();
     }
 }

@@ -1,16 +1,12 @@
 package com.epam.esm.gifts.dao;
 
 import com.epam.esm.gifts.model.GiftCertificate;
-import com.epam.esm.gifts.model.Tag;
+import com.epam.esm.gifts.model.GiftCertificateAttribute;
 
 import java.util.List;
 
 public interface GiftCertificateDao extends BaseDao<GiftCertificate> {
 
+    List<GiftCertificate> findByAttributes(GiftCertificateAttribute attribute, Integer offset, Integer limit);
 
-    List<Tag> addTagsToCertificate(Long id, List<Tag> addedTagList);
-
-    List<GiftCertificate> findByParameters(String tagName, String searchPart, String description, List<String> sortingFieldList, String orderSort);
-
-    boolean deleteAllTagsFromCertificate(Long id);
 }

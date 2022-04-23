@@ -32,13 +32,14 @@ public class OrderDaoImpl implements OrderDao {
     }
 
     @Override
-    public void create(Order order) {
-
+    public Order create(Order order) {
+        entityManager.persist(order);
+        return order;
     }
 
     @Override
     public Optional<Order> findById(Long id) {
-        return Optional.empty();
+        return Optional.ofNullable(entityManager.find(Order.class,id));
     }
 
     @Override
@@ -47,7 +48,15 @@ public class OrderDaoImpl implements OrderDao {
     }
 
     @Override
-    public int deleteById(Long id) {
-        return 0;
+    public void delete(Order order) {
+        entityManager.remove(order);
+    }
+
+    @Override
+    public Long findEntityNumber() {
+        CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
+        Root<Order> root = query.from(Order.class);
+        query.select(criteriaBuilder.count(root));
+        return entityManager.createQuery(query).getSingleResult();
     }
 }

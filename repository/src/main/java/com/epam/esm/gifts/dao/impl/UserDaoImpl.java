@@ -3,6 +3,9 @@ package com.epam.esm.gifts.dao.impl;
 import com.epam.esm.gifts.dao.UserDao;
 import com.epam.esm.gifts.model.User;
 import jdk.jfr.Percentage;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -19,7 +22,7 @@ public class UserDaoImpl implements UserDao {
 
     @Percentage
     private final EntityManager entityManager;
-    private final CriteriaBuilder cb; //инструмент динамического построения запросов.
+    private final CriteriaBuilder cb;
 
     @Autowired
     public UserDaoImpl(EntityManager entityManager) {
@@ -37,13 +40,14 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void create(User user) {
+    public User create(User user) {
         entityManager.persist(user);
+        return user;
     }
 
     @Override
     public Optional<User> findById(Long id) {
-        return Optional.empty();
+        return Optional.ofNullable(entityManager.find(User.class,id));
     }
 
     @Override
@@ -52,7 +56,16 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int deleteById(Long id) {
-        return 0;
+    public void delete(User user) {
+        entityManager.remove(user);
     }
+
+    @Override
+    public Long findEntityNumber() {
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<User> root = query.from(User.class);
+        query.select(cb.count(root));
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
 }
