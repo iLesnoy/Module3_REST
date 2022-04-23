@@ -1,9 +1,6 @@
 package com.epam.esm.gifts.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -16,15 +13,16 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "gift_certificate")
 public class GiftCertificate {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false, updatable = false)
-    private Long certificateId;
-    @Column(name = "certificate_name", unique = true, nullable = false)
+    private Long id;
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
     @Column(name = "description",nullable = false)
     private String description;
@@ -37,14 +35,14 @@ public class GiftCertificate {
     @Column(name = "last_update_date",nullable = false)
     private LocalDateTime lastUpdateDate;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "certificate_has_tag"
+    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.PERSIST)
+    @JoinTable(name = "gift_certificate_has_tag"
             , joinColumns = @JoinColumn(name = "gift_certificate_id", referencedColumnName = "id")
             , inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
-    private Set<Tag> products = new HashSet<>();
+    private Set<Tag> tagList = new HashSet<>();
 
     @PrePersist
-    private void preResist(){
+    private void PrePersist(){
         createDate = LocalDateTime.now();
         lastUpdateDate = createDate;
     }

@@ -1,9 +1,6 @@
 package com.epam.esm.gifts.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -17,28 +14,29 @@ import java.util.stream.Collectors;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
-@Table(name = "order")
+@Table(name = "orders")
 public class Order {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     @Column(name = "id", unique = true, nullable = false, updatable = false)
-    private Long orderId;
+    private Long id;
 
-    @Column(name = "purchase_time", nullable = false, updatable = false)
+    @Column(name = "order_date", nullable = false, updatable = false)
     private LocalDateTime purchaseTime;
 
     @Column(name = "order_cost", nullable = false, updatable = false)
     private BigDecimal cost;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "users_id")
     private User user;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name="gift_certificate"
-            ,joinColumns = @JoinColumn(name = "order_id", referencedColumnName = "id")
+    @JoinTable(name="gift_certificate_has_orders"
+            ,joinColumns = @JoinColumn(name = "orders_id", referencedColumnName = "id")
             ,inverseJoinColumns = @JoinColumn(name = "gift_certificate_id",referencedColumnName = "id"))
     private List<GiftCertificate> certificateList = new ArrayList<>();
 

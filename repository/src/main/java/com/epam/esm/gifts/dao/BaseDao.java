@@ -8,11 +8,13 @@ public interface BaseDao<T> {
 
     List<T> findAll(Integer offset, Integer limit);
 
-    void create(T t);
+    T create(T t);
 
     Optional<T> findById(Long id);
 
     void update(T t);
 
-    int deleteById(Long id);
+    void delete(T t);
+
+    Long findEntityNumber();
 }
