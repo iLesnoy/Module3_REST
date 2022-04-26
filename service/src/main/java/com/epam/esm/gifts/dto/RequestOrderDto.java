@@ -16,6 +16,6 @@ import java.util.List;
 public class RequestOrderDto {
     @JsonProperty("user-id")
     private Long userId;
-    @JsonProperty("certificate's-id")
+    @JsonProperty("certificates-id")
     private List<Long> certificateIdList;
 }

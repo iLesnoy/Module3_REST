@@ -15,7 +15,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 
 @Component
-public class HateaosBuilder {
+public class HateoasBuilder {
 
     private static final String SELF = "self";
     private static final String UPDATE = "update";

@@ -2,6 +2,7 @@ package com.epam.esm.gifts.validator;
 
 import com.epam.esm.gifts.dto.*;
 import com.epam.esm.gifts.exception.SystemException;
+import com.epam.esm.gifts.model.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -23,9 +24,6 @@ public class GiftCertificateValidator {
     private static final Set<String> AVAILABLE_SORT_ORDERS = Set.of("asc", "desc");
     private static final String PAGE_REGEX = "\\d+";
 
-    public enum ActionType {
-        INSERT, UPDATE, DELETE
-    }
 
     private static boolean isNotNullAndBlank(String field) {
         return Objects.nonNull(field) && !field.isBlank();
@@ -146,5 +144,11 @@ public class GiftCertificateValidator {
         if (!isPageExists(pageable, totalOrderNumber)) {
             throw new SystemException(NON_EXISTENT_PAGE);
         }
+    }
+
+    public  void checkOrderValidation(RequestOrderDto order){
+        /*if (!isPriceValid(order.getCertificateIdList().)) {
+            throw new SystemException(CERTIFICATE_INVALID_PRICE);
+        }*/
     }
 }

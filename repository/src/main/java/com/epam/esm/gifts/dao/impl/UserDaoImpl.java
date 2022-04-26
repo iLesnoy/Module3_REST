@@ -76,4 +76,13 @@ public class UserDaoImpl implements UserDao {
         query.where(cb.equal(root.get("name"),name));
         return entityManager.createQuery(query).getSingleResult() == 0;
     }
+
+    @Override
+    public User findByName(String name) {
+        CriteriaQuery<User> query = cb.createQuery(User.class);
+        Root<User> root = query.from(User.class);
+        query.select(root);
+        query.where(cb.like(root.get("name"),name));
+        return entityManager.createQuery(query).getSingleResult();
+    }
 }

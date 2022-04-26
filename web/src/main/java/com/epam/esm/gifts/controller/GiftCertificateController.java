@@ -5,27 +5,24 @@ import com.epam.esm.gifts.dto.CustomPage;
 import com.epam.esm.gifts.dto.CustomPageable;
 import com.epam.esm.gifts.dto.GiftCertificateDto;
 import com.epam.esm.gifts.dto.GiftCertificateAttributeDto;
-import com.epam.esm.gifts.hateaos.HateaosBuilder;
-import com.epam.esm.gifts.model.GiftCertificateAttribute;
+import com.epam.esm.gifts.hateaos.HateoasBuilder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/certificates")
 public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
-    private final HateaosBuilder hateaosBuilder;
+    private final HateoasBuilder hateoasBuilder;
 
     @Autowired
-    public GiftCertificateController(GiftCertificateService giftCertificateService, HateaosBuilder hateaosBuilder) {
+    public GiftCertificateController(GiftCertificateService giftCertificateService, HateoasBuilder hateoasBuilder) {
         this.giftCertificateService = giftCertificateService;
-        this.hateaosBuilder = hateaosBuilder;
+        this.hateoasBuilder = hateoasBuilder;
     }
 
     @PostMapping
@@ -50,7 +47,7 @@ public class GiftCertificateController {
     @GetMapping
     public CustomPage<GiftCertificateDto> findByAttributes(GiftCertificateAttributeDto attribute, CustomPageable pageable) {
         CustomPage<GiftCertificateDto> page = giftCertificateService.searchByParameters(attribute, pageable);
-        page.getContent().forEach(hateaosBuilder::setLinks);
+        page.getContent().forEach(hateoasBuilder::setLinks);
         return page;
     }
 

@@ -3,6 +3,7 @@ package com.epam.esm.gifts.dao.impl;
 import com.epam.esm.gifts.dao.OrderDao;
 import com.epam.esm.gifts.model.Order;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -11,6 +12,7 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class OrderDaoImpl implements OrderDao {
 
     private EntityManager entityManager;

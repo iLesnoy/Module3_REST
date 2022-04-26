@@ -94,12 +94,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findUserById(Long id) {
-        return null;
+        Optional<User>optionalUser = userDao.findById(id);
+        if(optionalUser.isPresent()){
+            return userDao.findById(id).get();
+        } else {
+            throw new SystemException(NON_EXISTENT_ENTITY);
+        }
     }
 
     @Override
     public UserDto findByName(String name) {
-        return null;
+        if(GiftCertificateValidator.isNameValid(name)) {
+            return UserConverter.userToDto(userDao.findByName(name));
+        }
+        throw new SystemException(USER_INVALID_NAME);
     }
 
     @Override
