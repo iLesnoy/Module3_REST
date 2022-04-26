@@ -9,4 +9,5 @@ public interface GiftCertificateDao extends BaseDao<GiftCertificate> {
 
     List<GiftCertificate> findByAttributes(GiftCertificateAttribute attribute, Integer offset, Integer limit);
 
+    Long findEntityNumber(GiftCertificateAttribute attribute);
 }

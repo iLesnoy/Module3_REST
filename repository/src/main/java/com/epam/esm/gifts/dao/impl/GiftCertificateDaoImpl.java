@@ -31,9 +31,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         this.sqlQueryBuilder.setCriteriaBuilder(criteriaBuilder);
     }
 
-
-
-
     @Override
     public List<GiftCertificate> findAll(Integer offset, Integer limit) {
         CriteriaQuery<GiftCertificate>criteriaQuery = criteriaBuilder.createQuery(GiftCertificate.class);
@@ -56,7 +53,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
     @Override
     public void update(GiftCertificate certificate) {
-        entityManager.merge(certificate);
+        entityManager.persist(certificate);
     }
 
     @Override
@@ -70,6 +67,13 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         Root<GiftCertificate> root = query.from(GiftCertificate.class);
         query.select(criteriaBuilder.count(root));
         return entityManager.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public Long findEntityNumber(GiftCertificateAttribute attribute) {
+        TypedQuery<Long> typedQuery = entityManager
+                .createQuery(sqlQueryBuilder.buildToCountCertificates(attribute));
+        return typedQuery.getSingleResult();
     }
 
     @Override

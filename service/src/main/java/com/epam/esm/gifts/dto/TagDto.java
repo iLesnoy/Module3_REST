@@ -1,13 +1,21 @@
 package com.epam.esm.gifts.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.*;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
 
-@Builder
 @Data
-public class TagDto implements Serializable {
-    private final Long id;
-    private final String name;
+@EqualsAndHashCode(callSuper = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonPropertyOrder({"id", "name"})
+public class TagDto extends RepresentationModel<TagDto> {
+    @JsonProperty("id")
+    private Long id;
+    @JsonProperty("name")
+    private String name;
 }

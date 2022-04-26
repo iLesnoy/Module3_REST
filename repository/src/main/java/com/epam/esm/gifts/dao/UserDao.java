@@ -4,4 +4,5 @@ import com.epam.esm.gifts.model.User;
 
 public interface UserDao extends BaseDao<User>{
 
+    boolean isNameFree(String name);
 }

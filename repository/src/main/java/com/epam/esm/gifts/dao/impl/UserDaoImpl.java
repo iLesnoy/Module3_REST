@@ -68,4 +68,12 @@ public class UserDaoImpl implements UserDao {
         return entityManager.createQuery(query).getSingleResult();
     }
 
+    @Override
+    public boolean isNameFree(String name) {
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<User> root = query.from(User.class);
+        query.select(cb.count(root.get("id")));
+        query.where(cb.equal(root.get("name"),name));
+        return entityManager.createQuery(query).getSingleResult() == 0;
+    }
 }
