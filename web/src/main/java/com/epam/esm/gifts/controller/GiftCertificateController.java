@@ -1,7 +1,12 @@
 package com.epam.esm.gifts.controller;
 
 import com.epam.esm.gifts.GiftCertificateService;
+import com.epam.esm.gifts.dto.CustomPage;
+import com.epam.esm.gifts.dto.CustomPageable;
 import com.epam.esm.gifts.dto.GiftCertificateDto;
+import com.epam.esm.gifts.dto.GiftCertificateAttributeDto;
+import com.epam.esm.gifts.hateaos.HateaosBuilder;
+import com.epam.esm.gifts.model.GiftCertificateAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,14 +16,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/certificates")
+@RequestMapping("/api/certificates")
 public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
+    private final HateaosBuilder hateaosBuilder;
 
     @Autowired
-    public GiftCertificateController(GiftCertificateService giftCertificateService) {
+    public GiftCertificateController(GiftCertificateService giftCertificateService, HateaosBuilder hateaosBuilder) {
         this.giftCertificateService = giftCertificateService;
+        this.hateaosBuilder = hateaosBuilder;
     }
 
     @PostMapping
@@ -41,21 +48,20 @@ public class GiftCertificateController {
     }
 
     @GetMapping
-    public List<GiftCertificateDto> findByAttributes(@RequestParam(required = false, name = "tagName") String tagName,
-                                                     @RequestParam(required = false, name = "searchPart") String searchPart,
-                                                     @RequestParam(required = false, name = "description") String description,
-                                                     @RequestParam(required = false, name = "sortingFields") List<String> sortingFields,
-                                                     @RequestParam(required = false, name = "orderSort") String orderSort) {
-        return giftCertificateService.searchByParameters(tagName, searchPart, description, sortingFields, orderSort);
+    public CustomPage<GiftCertificateDto> findByAttributes(GiftCertificateAttributeDto attribute, CustomPageable pageable) {
+        CustomPage<GiftCertificateDto> page = giftCertificateService.searchByParameters(attribute, pageable);
+        page.getContent().forEach(hateaosBuilder::setLinks);
+        return page;
     }
 
     @DeleteMapping("/{id}")
-    public GiftCertificateDto deleteById(@PathVariable Long id) {
-        return giftCertificateService.delete(id);
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteById(@PathVariable Long id) {
+        giftCertificateService.delete(id);
     }
 
     @DeleteMapping("deleteTags/{id}")
     private boolean deleteAllTagsFromGiftById(@PathVariable Long id){
-        return giftCertificateService.deleteAllTagsFromCertificate(id);
+        return false;
     }
 }

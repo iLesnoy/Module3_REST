@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/tag")
+@RequestMapping("/api/tag")
 public class TagController {
     private final TagService tagService;
 
@@ -39,7 +39,8 @@ public class TagController {
     }
 
     @DeleteMapping("/{id}")
-    public TagDto deleteTag(@PathVariable Long id) {
-        return tagService.delete(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTag(@PathVariable Long id) {
+         tagService.delete(id);
     }
 }
