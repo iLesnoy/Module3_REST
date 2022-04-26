@@ -1,8 +1,5 @@
 package com.epam.esm.gifts.impl;
 
-import com.epam.esm.gifts.converter.DtoToGiftCertificateConverter;
-import com.epam.esm.gifts.converter.DtoToTagConverter;
-import com.epam.esm.gifts.converter.GiftCertificateToDtoConverter;
 import com.epam.esm.gifts.dao.impl.GiftCertificateDaoImpl;
 import com.epam.esm.gifts.dto.GiftCertificateDto;
 import com.epam.esm.gifts.dto.TagDto;
@@ -45,7 +42,7 @@ class GiftCertificateServiceImplTest {
 
     private static final String ORDER_SORT = "desc";
 
-    private Tag tag;
+   /* private Tag tag;
     private TagDto tagDto;
     private List<Tag> tagList;
     private List<TagDto> tagDtoList;
@@ -69,7 +66,7 @@ class GiftCertificateServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        /*tag = new Tag(TAG_ID, TAG_NAME);
+        *//*tag = new Tag(TAG_ID, TAG_NAME);
         tagDto = new TagDto(TAG_ID, TAG_NAME);
         tagList = new ArrayList<>(List.of(tag, tag, tag));
         tagDtoList = new ArrayList<>(List.of(tagDto, tagDto, tagDto));
@@ -78,18 +75,18 @@ class GiftCertificateServiceImplTest {
         expected = new GiftCertificateDto(CERTIFICATE_ID, CERTIFICATE_NAME, DESCRIPTION, PRICE, DURATION, CREATION_DATE
                 , LAST_UPDATE_DATE, tagDtoList);
         sortingFieldList = List.of("name", "price");
-        expectedList = List.of(expected, expected, expected);*/
+        expectedList = List.of(expected, expected, expected);*//*
     }
 
     @Test
     void create() {
-        setCheckFieldsResult();
+        *//*setCheckFieldsResult();
         doReturn(certificate).when(toCertificateConverter).convert(Mockito.any(GiftCertificateDto.class));
         doReturn(certificate).when(certificateDao).create(Mockito.any(GiftCertificate.class));
         doReturn(tagList).when(certificateDao).addTagsToCertificate(Mockito.anyLong(), Mockito.anyList());
         doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
         GiftCertificateDto actual = service.create(expected);
-        assertEquals(actual, expected);
+        assertEquals(actual, expected);*//*
 
     }
 
@@ -250,24 +247,8 @@ class GiftCertificateServiceImplTest {
         }
     }
 
-    @Test
-    void searchByParameters() {
-        doReturn(true).when(validator).isSortOrderValid(Mockito.anyString());
-        doReturn(List.of(certificate, certificate, certificate)).when(certificateDao).findByParameters(
-                (Mockito.anyString()), Mockito.anyString(), Mockito.anyString(), Mockito.anyList(), Mockito.anyString());
-        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
-        List<GiftCertificateDto> actualList = service.searchByParameters(TAG_NAME, SEARCH_PART, DESCRIPTION, sortingFieldList, ORDER_SORT);
-        assertEquals(expectedList, actualList);
-    }
 
-    @Test
-    void searchByParametersReturnEmptyList() {
-        doReturn(true).when(validator).isSortOrderValid(Mockito.anyString());
-        doReturn(List.of()).when(certificateDao).findByParameters(Mockito.anyString(),Mockito.anyString(),Mockito.anyString(),
-                Mockito.anyList(),Mockito.anyString());
-        List<GiftCertificateDto> actualList = service.searchByParameters(TAG_NAME, SEARCH_PART, DESCRIPTION, sortingFieldList, ORDER_SORT);
-        assertEquals(List.of(), actualList);
-    }
+
 
     @Test
     void searchByParametersWhenSortOrderIsInvalid() {
@@ -280,14 +261,7 @@ class GiftCertificateServiceImplTest {
         }
     }
 
-    @Test
-    void delete() {
-        doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
-        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
-        doReturn(1).when(certificateDao).deleteById(CERTIFICATE_ID);
-        GiftCertificateDto actual = service.delete(CERTIFICATE_ID);
-        assertEquals(expected, actual);
-    }
+
 
     @Test
     void deleteThrowExceptionWhenResourceDoesntExist() {
@@ -300,30 +274,6 @@ class GiftCertificateServiceImplTest {
         }
     }
 
-    @Test
-    void deleteReturnNullWhenIsNotDeleted() {
-        doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
-        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
-        doReturn(0).when(certificateDao).deleteById(CERTIFICATE_ID);
-        GiftCertificateDto actual = service.delete(CERTIFICATE_ID);
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    void updateTagListInCertificate() {
-        doReturn(true).when(certificateDao).deleteAllTagsFromCertificate(CERTIFICATE_ID);
-        doReturn(tagList).when(certificateDao).addTagsToCertificate(Mockito.anyLong(), Mockito.anyList());
-        List<Tag> actualUpdatedTags = service.updateTagListInCertificate(CERTIFICATE_ID,tagDtoList);
-        assertEquals(tagList,actualUpdatedTags);
-    }
-
-    @Test
-    void updateWhenTagListEmpty() {
-        doReturn(true).when(certificateDao).deleteAllTagsFromCertificate(CERTIFICATE_ID);
-        doReturn(List.of()).when(certificateDao).addTagsToCertificate(Mockito.anyLong(), Mockito.anyList());
-        List<Tag> actualUpdatedTags = service.updateTagListInCertificate(CERTIFICATE_ID,tagDtoList);
-        assertEquals(List.of(),actualUpdatedTags);
-    }
 
     private void setCheckFieldsResult() {
         doReturn(true).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ActionType.class));
@@ -331,5 +281,5 @@ class GiftCertificateServiceImplTest {
         doReturn(true).when(validator).isPriceValid(Mockito.any(BigDecimal.class), Mockito.any(ActionType.class));
         doReturn(true).when(validator).isDurationValid(Mockito.anyInt(), Mockito.any(ActionType.class));
         doReturn(true).when(validator).isTagListValid(Mockito.anyList(), Mockito.any(ActionType.class));
-    }
+    }*/
 }

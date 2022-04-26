@@ -1,8 +1,6 @@
 package com.epam.esm.gifts.validator;
 
-import com.epam.esm.gifts.dto.GiftCertificateDto;
-import com.epam.esm.gifts.dto.RequestOrderDto;
-import com.epam.esm.gifts.dto.TagDto;
+import com.epam.esm.gifts.dto.*;
 import com.epam.esm.gifts.exception.SystemException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -22,7 +20,8 @@ public class GiftCertificateValidator {
     private static final String NAME_REGEX = "[\\p{Alpha}А-Яа-я]{2,65}";
     private static final String PRICE_REGEX = "^(\\d+|[\\.\\,]?\\d+){1,2}$";
     private static final String DESCRIPTION_REGEX = "[\\p{Alpha}А-Яа-я\\d-.,:;!?()\" ]{2,225}";
-    private static final Set<String> PROVIDED_SORT_ORDERS = Set.of("asc", "desc");
+    private static final Set<String> AVAILABLE_SORT_ORDERS = Set.of("asc", "desc");
+    private static final String PAGE_REGEX = "\\d+";
 
     public enum ActionType {
         INSERT, UPDATE, DELETE
@@ -33,9 +32,11 @@ public class GiftCertificateValidator {
     }
 
     public static boolean isTagListValid(List<TagDto> tagDtoList) {
-        return tagDtoList.isEmpty()
-                ? !CollectionUtils.isEmpty(tagDtoList) && isTagNameListValid(tagDtoList)
-                : CollectionUtils.isEmpty(tagDtoList) || isTagNameListValid(tagDtoList);
+        if (!CollectionUtils.isEmpty(tagDtoList) && isTagNameListValid(tagDtoList)) {
+            return true;
+        } else if(tagDtoList == null){
+            return false;
+        } else return CollectionUtils.isEmpty(tagDtoList) && !isTagNameListValid(tagDtoList);
     }
 
 
@@ -43,11 +44,18 @@ public class GiftCertificateValidator {
         return tagDtoList.stream().allMatch(tag -> Objects.nonNull(tag) && isNameValid(tag.getName()));
     }
 
-    /*public boolean isNameValid(String name){
-        return !name.isEmpty()
-                ? !name.isBlank() && name.matches(NAME_REGEX)
-                : name.matches(NAME_REGEX);
-    }*/
+    public boolean isAttributeDtoValid(GiftCertificateAttributeDto attributeDto) {
+        List<String> tagNameList = attributeDto.getTagNameList();
+        String searchPart = attributeDto.getSearchPart();
+        String orderSort = attributeDto.getOrderSort();
+        List<String> sortingFieldList = attributeDto.getSortingFieldList();
+
+        return (CollectionUtils.isEmpty(tagNameList) || tagNameList.stream()
+                .allMatch(tagName -> Objects.nonNull(tagName) && isNameValid(tagName)))
+                && isDescriptionValid(searchPart)
+                && (Objects.isNull(sortingFieldList) /*|| GiftCertificateField.getNameList().containsAll(sortingFieldList))*/
+                && (Objects.isNull(orderSort) || AVAILABLE_SORT_ORDERS.contains(orderSort.toLowerCase())));
+    }
 
     public static boolean isPriceValid(BigDecimal price) {
         return price == null
@@ -61,23 +69,23 @@ public class GiftCertificateValidator {
     }
 
 
-    /*public boolean isPageDataValid(CustomPageable pageable) {
+    public boolean isPageDataValid(CustomPageable pageable) {
         Integer size = pageable.getSize();
         Integer page = pageable.getPage();
-        return  Objects.nonNull(page) && Objects.nonNull(size) && size != ZERO && checkNumber(page) && checkNumber(size);
+        return  Objects.nonNull(page) && Objects.nonNull(size) && size != 0 && checkNumber(page) && checkNumber(size);
     }
 
     private boolean checkNumber(Number number) {
         return String.valueOf(number).matches(PAGE_REGEX);
-    }*/
+    }
 
-    /*public boolean isPageExists(CustomPageable pageable, Long totalNumber) {
-        if (pageable.getPage() == ZERO) {
+    public boolean isPageExists(CustomPageable pageable, Long totalNumber) {
+        if (pageable.getPage() == 0) {
             return true;
         }
         long lastPage = (long) Math.ceil((double) totalNumber / pageable.getSize());
         return pageable.getPage() < lastPage;
-    }*/
+    }
 
     private static boolean matchPriceToRegex(BigDecimal price) {
         return String.valueOf(price.doubleValue()).matches(PRICE_REGEX);
@@ -120,6 +128,23 @@ public class GiftCertificateValidator {
             throw new SystemException(CERTIFICATE_INVALID_DURATION);
         } else if (!isTagListValid(giftCertificateDto.getTagDtoList())) {
             throw new SystemException(TAG_INVALID_NAME);
+        }
+    }
+
+    public  void checkUserValidation(UserDto userDto){
+        if (userDto == null) {
+            throw new SystemException(EMPTY_OBJECT);
+        } else if(!isNameValid(userDto.getName())){
+            throw new SystemException(USER_INVALID_NAME);
+        }
+    }
+
+    public  void checkPageableValidation(CustomPageable pageable,long totalOrderNumber){
+        if (!isPageDataValid(pageable)) {
+            throw new SystemException(INVALID_DATA_OF_PAGE);
+        }
+        if (!isPageExists(pageable, totalOrderNumber)) {
+            throw new SystemException(NON_EXISTENT_PAGE);
         }
     }
 }

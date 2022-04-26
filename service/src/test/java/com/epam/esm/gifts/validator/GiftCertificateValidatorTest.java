@@ -1,34 +1,109 @@
 package com.epam.esm.gifts.validator;
 
 import com.epam.esm.gifts.dto.TagDto;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.*;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import static com.epam.esm.gifts.validator.GiftCertificateValidator.ActionType.INSERT;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GiftCertificateValidatorTest {
 
-    private GiftCertificateValidator validator;
 
-    @BeforeEach
-    void setUp(){
-        validator = new GiftCertificateValidator();
+    private static Object[][] tagValues(){
+        return new Object[][] {
+                {List.of(new TagDto(7L, "lenovo")),true},
+                {List.of(new TagDto(2L, "hello")),true},
+                {List.of(new TagDto(4L, "|_=_|")),false},
+                {List.of(new TagDto(1L, "tag3")),false}
+        };
     }
 
     @ParameterizedTest
     @MethodSource("tagValues")
     void isTagListValid(List<TagDto> tag,boolean expected) {
-        boolean actual = validator.isTagListValid(tag);
+        boolean actual = GiftCertificateValidator.isTagListValid(tag);
         assertEquals(actual,expected);
 
+    }
+
+    @Test
+    void isStrongTagListValidWithValidTagList() {
+        List<TagDto> validTagList = List.of(TagDto.builder().id(0L).name("NameOne").build()
+                , TagDto.builder().id(0L).name("NameTwo").build()
+                , TagDto.builder().id(0L).name("NameThree").build());
+        boolean condition = GiftCertificateValidator.isTagListValid(validTagList);
+        assertTrue(condition);
+    }
+
+    @Test
+    void isStrongTagNameListValidReturnsFalseWithEmptyTagList() {
+        List<TagDto> emptyTagList = List.of();
+        boolean condition = GiftCertificateValidator.isTagListValid(emptyTagList);
+        assertFalse(condition);
+    }
+
+    @Test
+    void isStrongTagListValidReturnsFalseWithNullTagList() {
+        List<TagDto> nullTagList = null;
+        boolean condition = GiftCertificateValidator.isTagListValid(nullTagList);
+        assertFalse(condition);
+    }
+
+    @Test
+    void isTagNameListValidReturnsFalseWithNullTagInList() {
+        List<TagDto> tagListWithNullTag = new ArrayList<>();
+        tagListWithNullTag.add(TagDto.builder().id(0L).name("Name").build());
+        tagListWithNullTag.add(null);
+        boolean condition = GiftCertificateValidator.isTagListValid(tagListWithNullTag);
+        assertFalse(condition);
+    }
+
+    @Test
+    void isStrongTagNameListValidReturnsFalseWithInvalidTagInList() {
+        List<TagDto> tagListWithInvalidTag = List.of(TagDto.builder().id(0L).name("Name#$_!+").build()
+                , TagDto.builder().id(0L).name("secondName").build());
+        boolean condition = GiftCertificateValidator.isTagListValid(tagListWithInvalidTag);
+        assertFalse(condition);
+    }
+
+    @Test
+    void isAttributeDtoValid() {
+    }
+
+    @Test
+    void isPriceValid() {
+    }
+
+    @Test
+    void isRequestOrderDataValid() {
+    }
+
+    @Test
+    void isPageDataValid() {
+    }
+
+    @Test
+    void isPageExists() {
+    }
+
+    @Test
+    void isDurationValid() {
+    }
+
+    @Test
+    void isNameValid() {
+    }
+
+    @Test
+    void isDescriptionValid() {
+    }
+
+    @Test
+    void checkGiftValidation() {
     }
 
     /*    private static Object[][] tagValues(){
