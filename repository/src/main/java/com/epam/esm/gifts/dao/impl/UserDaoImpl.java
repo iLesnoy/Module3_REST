@@ -1,6 +1,7 @@
 package com.epam.esm.gifts.dao.impl;
 
 import com.epam.esm.gifts.dao.UserDao;
+import com.epam.esm.gifts.model.Order;
 import com.epam.esm.gifts.model.User;
 import jdk.jfr.Percentage;
 import org.hibernate.Criteria;
@@ -84,5 +85,25 @@ public class UserDaoImpl implements UserDao {
         query.select(root);
         query.where(cb.like(root.get("name"),name));
         return entityManager.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public Long userOrderNumber(User user) {
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<Order> root = query.from(Order.class);
+        query.select(cb.count(root));
+        query.where(cb.equal(root.get("user"),user));
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
+
+    @Override
+    public List<Order> finUserOrder(User user, Integer offset, Integer limit){
+        CriteriaQuery<Order>query = cb.createQuery(Order.class);
+        Root<Order>root = query.from(Order.class);
+        query.select(root);
+        query.where(cb.equal(root.get("user"),user));
+        query.orderBy(cb.asc(root.get("id")));
+        return entityManager.createQuery(query).setFirstResult(offset).setMaxResults(limit).getResultList();
     }
 }

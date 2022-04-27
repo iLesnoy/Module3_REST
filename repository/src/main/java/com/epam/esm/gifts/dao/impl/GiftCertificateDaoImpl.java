@@ -3,6 +3,7 @@ package com.epam.esm.gifts.dao.impl;
 import com.epam.esm.gifts.dao.GiftCertificateDao;
 import com.epam.esm.gifts.model.GiftCertificate;
 import com.epam.esm.gifts.model.GiftCertificateAttribute;
+import com.epam.esm.gifts.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -81,5 +82,13 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         TypedQuery<GiftCertificate> query = entityManager
                 .createQuery(sqlQueryBuilder.giftSearchAndSortQuery(attribute));
         return query.setFirstResult(offset).setMaxResults(limit).getResultList();
+    }
+    @Override
+    public boolean isGiftNameFree(String name) {
+        CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
+        Root<GiftCertificate> root = query.from(GiftCertificate.class);
+        query.select(criteriaBuilder.count(root.get("id")));
+        query.where(criteriaBuilder.equal(root.get("name"),name));
+        return entityManager.createQuery(query).getSingleResult() == 0;
     }
 }

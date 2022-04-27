@@ -46,10 +46,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
         GiftCertificateValidator.checkGiftValidation(giftCertificateDto);
-        GiftCertificate giftCertificate = GiftCertificateConverter.dtoToGiftCertificate(giftCertificateDto);
-        setTagListCertificate(giftCertificate);
-        giftCertificateDao.create(giftCertificate);
-        return GiftCertificateConverter.giftCertificateToDto(giftCertificate);
+
+        if(giftCertificateDao.isGiftNameFree(giftCertificateDto.getName())) {
+            GiftCertificate giftCertificate = GiftCertificateConverter.dtoToGiftCertificate(giftCertificateDto);
+            setTagListCertificate(giftCertificate);
+            giftCertificateDao.create(giftCertificate);
+            return GiftCertificateConverter.giftCertificateToDto(giftCertificate);
+        }
+        throw new SystemException(DUPLICATE_NAME);
     }
 
     private void setTagListCertificate(GiftCertificate certificate) {

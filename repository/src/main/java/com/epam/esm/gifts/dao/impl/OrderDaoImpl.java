@@ -2,6 +2,7 @@ package com.epam.esm.gifts.dao.impl;
 
 import com.epam.esm.gifts.dao.OrderDao;
 import com.epam.esm.gifts.model.Order;
+import com.epam.esm.gifts.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

@@ -30,9 +30,9 @@ public class GiftCertificate {
     private BigDecimal price;
     @Column(name = "duration",nullable = false)
     private int duration;
-    @Column(name = "create_date",nullable = false)
+    @Column(name = "create_date")
     private LocalDateTime createDate;
-    @Column(name = "last_update_date",nullable = false)
+    @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
 
     @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.PERSIST)
