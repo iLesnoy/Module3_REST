@@ -3,7 +3,8 @@ package com.epam.esm.gifts.dao.impl;
 import com.epam.esm.gifts.dao.GiftCertificateDao;
 import com.epam.esm.gifts.model.GiftCertificate;
 import com.epam.esm.gifts.model.GiftCertificateAttribute;
-import com.epam.esm.gifts.model.User;
+import com.epam.esm.gifts.model.Order;
+import com.epam.esm.gifts.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -12,8 +13,10 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -89,6 +92,16 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         Root<GiftCertificate> root = query.from(GiftCertificate.class);
         query.select(criteriaBuilder.count(root.get("id")));
         query.where(criteriaBuilder.equal(root.get("name"),name));
+        return entityManager.createQuery(query).getSingleResult() == 0;
+    }
+
+    @Override
+    public boolean isGiftCertificateUsedInOrders(Long id) {
+        CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
+        Root<Order> root = query.from(Order.class);
+        Join<GiftCertificate,Order> giftCertificateJoin = root.join("certificateList");
+        query.select(criteriaBuilder.count(root.get("id")));
+        query.where(criteriaBuilder.equal(giftCertificateJoin.get("id"),id));
         return entityManager.createQuery(query).getSingleResult() == 0;
     }
 }

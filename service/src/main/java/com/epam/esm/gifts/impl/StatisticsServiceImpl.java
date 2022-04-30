@@ -14,16 +14,19 @@ import static com.epam.esm.gifts.exception.ExceptionCode.NON_EXISTENT_ENTITY;
 public class StatisticsServiceImpl implements StatisticsService {
 
     private StatisticsDaoImpl statisticsDao;
+    private TagConverter tagConverter;
 
     @Autowired
-    public StatisticsServiceImpl(StatisticsDaoImpl statisticsDao) {
+    public StatisticsServiceImpl(StatisticsDaoImpl statisticsDao, TagConverter tagConverter) {
         this.statisticsDao = statisticsDao;
+        this.tagConverter = tagConverter;
     }
+
 
     @Override
     public TagDto mostWidelyUsedTag() {
         return statisticsDao.findMostPopularTag()
-                .map(TagConverter::tagToDto)
+                .map(tagConverter::tagToDto)
                 .orElseThrow(() -> new SystemException(NON_EXISTENT_ENTITY));
     }
 }

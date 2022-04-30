@@ -1,6 +1,6 @@
 package com.epam.esm.gifts.exception;
 
-import java.util.function.Supplier;
+
 
 public class SystemException extends RuntimeException{
 

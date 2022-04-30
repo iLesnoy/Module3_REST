@@ -54,6 +54,7 @@ class GiftCertificateDaoImplTest {
     void setUp() {
         tag = Tag.builder().id(1L).name("NewTagName").build();
         certificate = GiftCertificate.builder()
+                .id(4L)
                 .name("NewCertificate")
                 .description("Description")
                 .price(new BigDecimal("10"))
@@ -124,6 +125,17 @@ class GiftCertificateDaoImplTest {
         assertEquals(3L, actual);
     }
 
+    @Test
+    void isGiftCertificateUsedInOrdersTrueIfNotUsed() {
+        boolean actual = certificateDao.isGiftCertificateUsedInOrders(1L);
+        assertFalse(actual);
+    }
+
+    @Test
+    void isGiftCertificateUsedNotUsed() {
+        boolean actual = certificateDao.isGiftCertificateUsedInOrders(1000L);
+        assertTrue(actual);
+    }
     /*@Test
     void findEntityNumberByAttribute() {
         long actual = certificateDao.findEntityNumber(attribute);

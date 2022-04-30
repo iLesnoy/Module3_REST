@@ -14,4 +14,5 @@ public interface GiftCertificateService extends BaseService<GiftCertificateDto> 
     CustomPage<GiftCertificateDto> searchByParameters(GiftCertificateAttributeDto attributeDto, CustomPageable pageable);
 
     GiftCertificate findCertificateById(Long id);
+
 }

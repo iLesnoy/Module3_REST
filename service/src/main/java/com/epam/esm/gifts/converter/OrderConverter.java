@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 public class OrderConverter {
 
 
-    UserConverter userConverter;
-    GiftCertificateConverter giftCertificateConverter;
+    private UserConverter userConverter;
+    private GiftCertificateConverter giftCertificateConverter;
 
     @Autowired
     public OrderConverter(UserConverter userConverter, GiftCertificateConverter giftCertificateConverter) {
@@ -19,23 +19,23 @@ public class OrderConverter {
         this.giftCertificateConverter = giftCertificateConverter;
     }
 
-
-    public static Order dtoToOrder(ResponseOrderDto order) {
+    public Order dtoToOrder(ResponseOrderDto order) {
         return Order.builder()
                 .id(order.getId())
                 .purchaseTime(order.getOrderDate())
                 .cost(order.getCost())
-                .user(UserConverter.dtoToUser(order.getUserDto()))
-                .certificateList(order.getCertificateList().stream().map(GiftCertificateConverter::dtoToGiftCertificate).toList())
+                .user(userConverter.dtoToUser(order.getUserDto()))
+                .certificateList(order.getCertificateList().stream().map(giftCertificateConverter::dtoToGiftCertificate).toList())
                 .build();
     }
-        public static ResponseOrderDto orderToDto (Order order){
-            return ResponseOrderDto.builder()
-                    .id(order.getId())
-                    .orderDate(order.getPurchaseTime())
-                    .cost(order.getCost())
-                    .userDto(UserConverter.userToDto(order.getUser()))
-                    .certificateList(order.getCertificateList().stream().map(GiftCertificateConverter::giftCertificateToDto).toList())
-                    .build();
-        }
+
+    public ResponseOrderDto orderToDto(Order order) {
+        return ResponseOrderDto.builder()
+                .id(order.getId())
+                .orderDate(order.getPurchaseTime())
+                .cost(order.getCost())
+                .userDto(userConverter.userToDto(order.getUser()))
+                .certificateList(order.getCertificateList().stream().map(giftCertificateConverter::giftCertificateToDto).toList())
+                .build();
     }
+}

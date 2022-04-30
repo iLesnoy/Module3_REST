@@ -26,20 +26,24 @@ public class UserServiceImpl implements UserService {
 
     private UserDaoImpl userDao;
     private GiftCertificateValidator validation;
+    private UserConverter userConverter;
+    private OrderConverter orderConverter;
 
     @Autowired
-    public UserServiceImpl(UserDaoImpl userDao, GiftCertificateValidator validation) {
+    public UserServiceImpl(UserDaoImpl userDao, GiftCertificateValidator validation,
+                           UserConverter userConverter, OrderConverter orderConverter) {
         this.userDao = userDao;
         this.validation = validation;
+        this.userConverter = userConverter;
+        this.orderConverter = orderConverter;
     }
-
 
     @Override
     @Transactional
     public UserDto create(UserDto userDto) {
-        if (GiftCertificateValidator.isNameValid(userDto.getName())) {
+        if (validation.isNameValid(userDto.getName())) {
             if (userDao.isNameFree(userDto.getName())) {
-                return UserConverter.userToDto(userDao.create(UserConverter.dtoToUser(userDto)));
+                return userConverter.userToDto(userDao.create(userConverter.dtoToUser(userDto)));
             }
             throw new SystemException(DUPLICATE_NAME);
         }
@@ -54,7 +58,7 @@ public class UserServiceImpl implements UserService {
         if (optionalUser.isPresent()) {
             validation.checkUserValidation(userDto);
             if (userDao.isNameFree(userDto.getName())) {
-                userDao.update(UserConverter.dtoToUser(userDto));
+                userDao.update(userConverter.dtoToUser(userDto));
                 return userDto;
             }
             throw new SystemException(DUPLICATE_NAME);
@@ -66,7 +70,7 @@ public class UserServiceImpl implements UserService {
     public UserDto findById(Long id) {
         Optional<User> optionalUser = userDao.findById(id);
         if (optionalUser.isPresent()) {
-            return UserConverter.userToDto(optionalUser.get());
+            return userConverter.userToDto(optionalUser.get());
         }
         throw new SystemException(NON_EXISTENT_ENTITY);
     }
@@ -78,7 +82,7 @@ public class UserServiceImpl implements UserService {
         int offset = calculateOffset(pageable);
         List<UserDto> userDtoList = userDao.findAll(offset, pageable.getSize())
                 .stream()
-                .map(UserConverter::userToDto)
+                .map(userConverter::userToDto)
                 .toList();
         return new CustomPage<>(userDtoList, pageable, userNumber);
     }
@@ -105,8 +109,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto findByName(String name) {
-        if (GiftCertificateValidator.isNameValid(name)) {
-            return UserConverter.userToDto(userDao.findByName(name));
+        if (validation.isNameValid(name)) {
+            return userConverter.userToDto(userDao.findByName(name));
         }
         throw new SystemException(USER_INVALID_NAME);
     }
@@ -119,7 +123,7 @@ public class UserServiceImpl implements UserService {
         Long totalElements = userDao.userOrderNumber(optionalUser.get());
         int offset = calculateOffset(pageable);
         List<ResponseOrderDto> userOrder = userDao.finUserOrder(optionalUser.get(), offset, pageable.getSize())
-                .stream().map(OrderConverter::orderToDto).toList();
+                .stream().map(orderConverter::orderToDto).toList();
         System.out.println(userOrder);
         return new CustomPage<>(userOrder, pageable, totalElements);
     }

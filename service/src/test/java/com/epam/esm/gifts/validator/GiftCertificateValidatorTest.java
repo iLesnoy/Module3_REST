@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GiftCertificateValidatorTest {
 
+    GiftCertificateValidator validator;
 
     private static Object[][] tagValues(){
         return new Object[][] {
@@ -25,7 +26,7 @@ class GiftCertificateValidatorTest {
     @ParameterizedTest
     @MethodSource("tagValues")
     void isTagListValid(List<TagDto> tag,boolean expected) {
-        boolean actual = GiftCertificateValidator.isTagListValid(tag);
+        boolean actual = validator.isTagListValid(tag);
         assertEquals(actual,expected);
 
     }
@@ -35,21 +36,21 @@ class GiftCertificateValidatorTest {
         List<TagDto> validTagList = List.of(TagDto.builder().id(0L).name("NameOne").build()
                 , TagDto.builder().id(0L).name("NameTwo").build()
                 , TagDto.builder().id(0L).name("NameThree").build());
-        boolean condition = GiftCertificateValidator.isTagListValid(validTagList);
+        boolean condition = validator.isTagListValid(validTagList);
         assertTrue(condition);
     }
 
     @Test
     void isStrongTagNameListValidReturnsFalseWithEmptyTagList() {
         List<TagDto> emptyTagList = List.of();
-        boolean condition = GiftCertificateValidator.isTagListValid(emptyTagList);
+        boolean condition = validator.isTagListValid(emptyTagList);
         assertFalse(condition);
     }
 
     @Test
     void isStrongTagListValidReturnsFalseWithNullTagList() {
         List<TagDto> nullTagList = null;
-        boolean condition = GiftCertificateValidator.isTagListValid(nullTagList);
+        boolean condition = validator.isTagListValid(nullTagList);
         assertFalse(condition);
     }
 
@@ -58,7 +59,7 @@ class GiftCertificateValidatorTest {
         List<TagDto> tagListWithNullTag = new ArrayList<>();
         tagListWithNullTag.add(TagDto.builder().id(0L).name("Name").build());
         tagListWithNullTag.add(null);
-        boolean condition = GiftCertificateValidator.isTagListValid(tagListWithNullTag);
+        boolean condition = validator.isTagListValid(tagListWithNullTag);
         assertFalse(condition);
     }
 
@@ -66,7 +67,7 @@ class GiftCertificateValidatorTest {
     void isStrongTagNameListValidReturnsFalseWithInvalidTagInList() {
         List<TagDto> tagListWithInvalidTag = List.of(TagDto.builder().id(0L).name("Name#$_!+").build()
                 , TagDto.builder().id(0L).name("secondName").build());
-        boolean condition = GiftCertificateValidator.isTagListValid(tagListWithInvalidTag);
+        boolean condition = validator.isTagListValid(tagListWithInvalidTag);
         assertFalse(condition);
     }
 

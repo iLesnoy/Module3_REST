@@ -12,4 +12,6 @@ public interface GiftCertificateDao extends BaseDao<GiftCertificate> {
     Long findEntityNumber(GiftCertificateAttribute attribute);
 
     boolean isGiftNameFree(String name);
+
+    boolean isGiftCertificateUsedInOrders(Long id);
 }

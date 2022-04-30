@@ -27,11 +27,11 @@ public class GiftCertificateValidator {
     private static final String PAGE_REGEX = "\\d+";
 
 
-    private static boolean isNotNullAndBlank(String field) {
+    private  boolean isNotNullAndBlank(String field) {
         return Objects.nonNull(field) && !field.isBlank();
     }
 
-    public static boolean isTagListValid(List<TagDto> tagDtoList) {
+    public  boolean isTagListValid(List<TagDto> tagDtoList) {
         if (!CollectionUtils.isEmpty(tagDtoList) && isTagNameListValid(tagDtoList)) {
             return true;
         } else if(tagDtoList == null){
@@ -40,7 +40,7 @@ public class GiftCertificateValidator {
     }
 
 
-    private static boolean isTagNameListValid(List<TagDto> tagDtoList) {
+    private  boolean isTagNameListValid(List<TagDto> tagDtoList) {
         return tagDtoList.stream().allMatch(tag -> Objects.nonNull(tag) && isNameValid(tag.getName()));
     }
 
@@ -57,12 +57,12 @@ public class GiftCertificateValidator {
                 && (Objects.isNull(orderSort) || AVAILABLE_SORT_ORDERS.contains(orderSort.toLowerCase())));
     }
 
-    public static boolean isPriceValid(BigDecimal price) {
+    public  boolean isPriceValid(BigDecimal price) {
         return price == null ? Objects.nonNull(price) && matchPriceToRegex(price)
                 : Objects.isNull(price) || matchPriceToRegex(price);
     }
 
-    public static boolean isRequestOrderDataValid(RequestOrderDto orderDto) {
+    public  boolean isRequestOrderDataValid(RequestOrderDto orderDto) {
         return Objects.nonNull(orderDto.getUserId()) && Objects.nonNull(orderDto.getCertificateIdList())
                 && orderDto.getCertificateIdList().stream().allMatch(Objects::nonNull);
     }
@@ -86,35 +86,35 @@ public class GiftCertificateValidator {
         return pageable.getPage() < lastPage;
     }
 
-    private static boolean matchPriceToRegex(BigDecimal price) {
+    private  boolean matchPriceToRegex(BigDecimal price) {
         return String.valueOf(price.doubleValue()).matches(PRICE_REGEX);
     }
 
-    public static boolean isDurationValid(int duration) {
+    public  boolean isDurationValid(int duration) {
         return Objects.nonNull(duration)
                 ? isDurationRangeValid(duration) : duration == 0 || isDurationRangeValid(duration);
     }
 
-    private static boolean isDurationRangeValid(int duration) {
+    private boolean isDurationRangeValid(int duration) {
         return duration >= MIN_PERIOD & duration <= MAX_PERIOD;
     }
 
-    public static boolean isNameValid(String name) {
+    public  boolean isNameValid(String name) {
         return isStringFieldValid(name, NAME_REGEX);
 
     }
 
-    public static boolean isDescriptionValid(String description) {
+    public  boolean isDescriptionValid(String description) {
         return isStringFieldValid(description, DESCRIPTION_REGEX);
     }
 
-    private static boolean isStringFieldValid(String field, String regex) {
+    private  boolean isStringFieldValid(String field, String regex) {
         return Objects.isNull(field)
                 ? isNotNullAndBlank(field) && field.matches(regex)
                 : Objects.isNull(field) || (!field.isBlank() && field.matches(regex));
     }
 
-    public static void checkGiftValidation(GiftCertificateDto giftCertificateDto) {
+    public void checkGiftValidation(GiftCertificateDto giftCertificateDto) {
         if (giftCertificateDto == null) {
             throw new SystemException(EMPTY_OBJECT);
         } else if (!isNameValid(giftCertificateDto.getName())) {

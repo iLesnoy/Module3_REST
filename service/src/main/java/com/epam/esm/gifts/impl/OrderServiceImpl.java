@@ -29,17 +29,17 @@ public class OrderServiceImpl implements OrderService {
     private GiftCertificateValidator validator;
     private UserServiceImpl userService;
     private GiftCertificateServiceImpl giftCertificateService;
+    private OrderConverter orderConverter;
 
     @Autowired
-    public OrderServiceImpl(OrderDaoImpl orderDao, GiftCertificateValidator validator,
-                            UserServiceImpl userService,
-                            GiftCertificateServiceImpl giftCertificateService) {
+    public OrderServiceImpl(OrderDaoImpl orderDao, GiftCertificateValidator validator, UserServiceImpl userService,
+                            GiftCertificateServiceImpl giftCertificateService, OrderConverter orderConverter) {
         this.orderDao = orderDao;
         this.validator = validator;
         this.userService = userService;
         this.giftCertificateService = giftCertificateService;
+        this.orderConverter = orderConverter;
     }
-
 
     @Override
     public ResponseOrderDto create(ResponseOrderDto responseOrderDto) {
@@ -54,7 +54,7 @@ public class OrderServiceImpl implements OrderService {
         List<GiftCertificate> giftCertificates = orderDto.getCertificateIdList()
                 .stream().map(giftCertificateService::findCertificateById).collect(Collectors.toList());
         Order order = Order.builder().user(user).certificateList(giftCertificates).build();
-        return OrderConverter.orderToDto(orderDao.create(order));
+        return orderConverter.orderToDto(orderDao.create(order));
     }
 
     @Override
@@ -64,7 +64,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseOrderDto findById(Long id) {
-        Optional<ResponseOrderDto> optionalOrder = Optional.of(OrderConverter.orderToDto(orderDao.findById(id).get()));
+        Optional<ResponseOrderDto> optionalOrder = Optional.of(orderConverter.orderToDto(orderDao.findById(id).get()));
         if (optionalOrder.isPresent()) {
             return optionalOrder.get();
         } else throw new SystemException(NON_EXISTENT_ENTITY);
@@ -75,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
         int offset = calculateOffset(pageable);
         long totalOrderNumber = orderDao.findEntityNumber();
         List<ResponseOrderDto>dtoList = orderDao.findAll(offset,pageable.getSize())
-                .stream().map(OrderConverter::orderToDto).toList();
+                .stream().map(orderConverter::orderToDto).toList();
         return new CustomPage<>(dtoList,pageable,totalOrderNumber);
     }
 

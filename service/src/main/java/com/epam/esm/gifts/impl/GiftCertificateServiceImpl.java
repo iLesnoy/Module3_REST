@@ -27,15 +27,18 @@ import static com.epam.esm.gifts.exception.ExceptionCode.*;
 public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     GiftCertificateConverter giftCertificateConverter;
-    GiftCertificateAttributeConverter attributeConverter; //TODO add interafce
+    TagConverter tagConverter;
+    GiftCertificateAttributeConverter attributeConverter; //TODO add interface?
     GiftCertificateDaoImpl giftCertificateDao;
     TagServiceImpl tagService;
     GiftCertificateValidator validator;
 
     @Autowired
     public GiftCertificateServiceImpl(GiftCertificateConverter giftCertificateConverter, GiftCertificateAttributeConverter attributeConverter,
-                                      GiftCertificateDaoImpl giftCertificateDao, TagServiceImpl tagService, GiftCertificateValidator validator) {
+                                      GiftCertificateDaoImpl giftCertificateDao, TagServiceImpl tagService, GiftCertificateValidator validator,
+                                      TagConverter tagConverter) {
         this.giftCertificateConverter = giftCertificateConverter;
+        this.tagConverter = tagConverter;
         this.attributeConverter = attributeConverter;
         this.giftCertificateDao = giftCertificateDao;
         this.tagService = tagService;
@@ -45,13 +48,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
-        GiftCertificateValidator.checkGiftValidation(giftCertificateDto);
+        validator.checkGiftValidation(giftCertificateDto);
 
-        if(giftCertificateDao.isGiftNameFree(giftCertificateDto.getName())) {
-            GiftCertificate giftCertificate = GiftCertificateConverter.dtoToGiftCertificate(giftCertificateDto);
+        if (giftCertificateDao.isGiftNameFree(giftCertificateDto.getName())) {
+            GiftCertificate giftCertificate = giftCertificateConverter.dtoToGiftCertificate(giftCertificateDto);
             setTagListCertificate(giftCertificate);
             giftCertificateDao.create(giftCertificate);
-            return GiftCertificateConverter.giftCertificateToDto(giftCertificate);
+            return giftCertificateConverter.giftCertificateToDto(giftCertificate);
         }
         throw new SystemException(DUPLICATE_NAME);
     }
@@ -65,19 +68,19 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
-        GiftCertificateValidator.checkGiftValidation(giftCertificateDto);
+        validator.checkGiftValidation(giftCertificateDto);
         GiftCertificate persistedCertificate = findCertificateById(id);
 
         setUpdatedFields(persistedCertificate, giftCertificateDto);
         setUpdatedTagList(persistedCertificate, giftCertificateDto.getTagDtoList());
 
         giftCertificateDao.update(persistedCertificate);
-        return GiftCertificateConverter.giftCertificateToDto(persistedCertificate);
+        return giftCertificateConverter.giftCertificateToDto(persistedCertificate);
     }
 
     @Override
     public GiftCertificateDto findById(Long id) {
-        return GiftCertificateConverter.giftCertificateToDto(findCertificateById(id));
+        return giftCertificateConverter.giftCertificateToDto(findCertificateById(id));
     }
 
     @Override
@@ -90,6 +93,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         return giftCertificateDao.findById(id).orElseThrow(() -> new SystemException((NON_EXISTENT_ENTITY)));
     }
 
+
     @Override
     public CustomPage<GiftCertificateDto> searchByParameters(GiftCertificateAttributeDto attributeDto, CustomPageable pageable) {
         checkSearchParams(attributeDto, pageable);
@@ -100,7 +104,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         }
         int offset = calculateOffset(pageable);
         List<GiftCertificate> certificateList = giftCertificateDao.findByAttributes(attribute, offset, pageable.getSize());
-        List<GiftCertificateDto> certificateDtoList = certificateList.stream().map(GiftCertificateConverter::giftCertificateToDto).toList();
+        List<GiftCertificateDto> certificateDtoList = certificateList.stream().map(giftCertificateConverter::giftCertificateToDto).toList();
         return new CustomPage<>(certificateDtoList, pageable, totalCertificateNumber);
     }
 
@@ -108,11 +112,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Transactional
     public void delete(Long id) {
         Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(id);
-        if(optionalGiftCertificate.isPresent()) {
-            giftCertificateDao.delete(optionalGiftCertificate.get());
-        } else {
-            throw new SystemException(NON_EXISTENT_ENTITY);
+        if (optionalGiftCertificate.isPresent()) {
+            if (giftCertificateDao.isGiftCertificateUsedInOrders(id)) {
+                giftCertificateDao.delete(optionalGiftCertificate.get());
+            }
+            throw new SystemException(USED_ENTITY);
         }
+        throw new SystemException(NON_EXISTENT_ENTITY);
     }
 
     private void setUpdatedFields(GiftCertificate persistedCertificate, GiftCertificateDto updatedCertificateDto) {
@@ -140,13 +146,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             return;
         }
         Set<Tag> updatedTagSet = tagDtoList.stream()
-                .map(TagConverter::dtoToTag)
+                .map(tagConverter::dtoToTag)
                 .map(tagService::createTag)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         persistedCertificate.setTagList(updatedTagSet);
     }
 
-    private void checkSearchParams(GiftCertificateAttributeDto attributeDto, CustomPageable pageable) {
+    public void checkSearchParams(GiftCertificateAttributeDto attributeDto, CustomPageable pageable) {
         if (!validator.isAttributeDtoValid(attributeDto)) {
             throw new SystemException(INVALID_ATTRIBUTE_LIST);
         }

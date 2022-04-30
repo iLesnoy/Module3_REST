@@ -35,12 +35,12 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public TagDto create(TagDto tagDto) {
-        Tag tag = createTag(TagConverter.dtoToTag(tagDto));
-        return TagConverter.tagToDto(tag);
+        Tag tag = createTag(tagConverter.dtoToTag(tagDto));
+        return tagConverter.tagToDto(tag);
     }
 
     public Tag createTag(Tag tag) {
-        if (GiftCertificateValidator.isNameValid(tag.getName())) {
+        if (giftCertificateValidator.isNameValid(tag.getName())) {
             return tagDao.findByName(tag.getName()).orElseGet(() -> tagDao.create(tag));
         }
         throw new SystemException(TAG_INVALID_NAME);
@@ -48,15 +48,15 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto update(Long id, TagDto tagDto) {
-        if (GiftCertificateValidator.isNameValid(tagDto.getName())) {
-            tagDao.update(TagConverter.dtoToTag(tagDto));
+        if (giftCertificateValidator.isNameValid(tagDto.getName())) {
+            tagDao.update(tagConverter.dtoToTag(tagDto));
         }
         throw new SystemException(TAG_INVALID_NAME);
     }
 
     @Override
     public TagDto findById(Long id) {
-        return TagConverter.tagToDto(findTagById(id));
+        return tagConverter.tagToDto(findTagById(id));
     }
 
     private Tag findTagById(Long id) {
