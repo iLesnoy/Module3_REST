@@ -1,8 +1,11 @@
 package com.epam.esm.gifts.impl;
 
+import com.epam.esm.gifts.BaseService;
 import com.epam.esm.gifts.TagService;
 import com.epam.esm.gifts.converter.TagConverter;
 import com.epam.esm.gifts.dao.impl.TagDaoImpl;
+import com.epam.esm.gifts.dto.CustomPage;
+import com.epam.esm.gifts.dto.CustomPageable;
 import com.epam.esm.gifts.dto.TagDto;
 import com.epam.esm.gifts.exception.SystemException;
 import com.epam.esm.gifts.model.GiftCertificate;
@@ -52,6 +55,21 @@ public class TagServiceImpl implements TagService {
             tagDao.update(tagConverter.dtoToTag(tagDto));
         }
         throw new SystemException(TAG_INVALID_NAME);
+    }
+
+    @Override
+    public CustomPage<TagDto> findAll(CustomPageable pageable) {
+        if (!giftCertificateValidator.isPageDataValid(pageable)) {
+            throw new SystemException(INVALID_DATA_OF_PAGE);
+        }
+        long totalTagNumber = tagDao.findEntityNumber();
+        if (!giftCertificateValidator.isPageExists(pageable, totalTagNumber)) {
+            throw new SystemException(NON_EXISTENT_PAGE);
+        }
+        int offset = calculateOffset(pageable);
+        List<TagDto> tagDtoList = tagDao.findAll(offset, pageable.getSize())
+                .stream().map(tagConverter::tagToDto).toList();
+        return new CustomPage<>(tagDtoList, pageable, totalTagNumber);
     }
 
     @Override

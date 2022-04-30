@@ -36,7 +36,7 @@ class TagDaoImplTest {
 
     @BeforeEach
     void setUp() {
-        expected = Tag.builder().id(1L).name("maven").build();
+        expected = Tag.builder().name("maven").build();
     }
 
     @Test
@@ -56,8 +56,7 @@ class TagDaoImplTest {
     @Test
     void findById() {
         Optional<Tag> tag = tagDao.findById(1L);
-        System.out.println(tag.get());
-        assertEquals("EPAM", tag.get().getName());
+        assertEquals("Enum", tag.get().getName());
     }
 
     @Test
@@ -87,6 +86,8 @@ class TagDaoImplTest {
 
     @Test
     void findByName() {
+        Optional<Tag> tag = tagDao.findByName("EPAM");
+        assertNotNull(tag.get());
     }
 
     @Test
@@ -95,15 +96,12 @@ class TagDaoImplTest {
         assertNotNull(tag);
     }
 
-    /*@Test
-    void isTagUsedInCertificatesWithTrueCondition() {
-        boolean condition = tagDao.isTagUsedInCertificates(3L);
-        assertTrue(condition);
-    }
-
     @Test
     void isTagUsedInCertificatesWithFalseCondition() {
-        boolean condition = tagDao.isTagUsedInCertificates(4L);
-        assertFalse(condition);
-    }*/
+        List<GiftCertificate> tag = tagDao.isTagUsed(Tag.builder()
+                .id(35L).name("papa")
+                .build());
+        assertTrue(tag.isEmpty());
+    }
+
 }

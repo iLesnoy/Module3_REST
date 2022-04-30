@@ -7,7 +7,7 @@ INSERT INTO tag (name) VALUES ('EPAM'), ('REST'), ('MAVEN'), ('JAVA');
 
 INSERT INTO gift_certificate_has_tag (gift_certificate_id, tag_id) VALUES (1, 1), (1, 3), (2, 2);
 
-INSERT INTO users (id,name) VALUES (1,'Egor'), (2,'Ann'), (3,'Vaz');
+INSERT INTO users (id,name) VALUES (1,'Egor'), (2,'Ann'), (3,'Vaz'),(4,'Ivan');
 
 INSERT INTO orders (id,order_date,order_cost,users_id) VALUES (1,'2022-02-10 12:33:33',200,1),(2,'2022-02-10 12:33:33',500,2);
 

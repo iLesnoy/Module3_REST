@@ -2,6 +2,7 @@ package com.epam.esm.gifts.dao.impl;
 
 import com.epam.esm.gifts.dao.config.TestConfig;
 import com.epam.esm.gifts.model.GiftCertificate;
+import com.epam.esm.gifts.model.GiftCertificateAttribute;
 import com.epam.esm.gifts.model.Tag;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,13 +10,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,20 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 @ActiveProfiles("test")
 class GiftCertificateDaoImplTest {
-
-
-    private static final String TAG_NAME_FOR_SEARCH = "EPAM";
-    private static final String PART_OF_SEARCH = "descript";
-    private static final long TAG_ID = 1;
-    private static final String TAG_NAME = "Tag";
-
-    private static final long CERTIFICATE_ID = 1;
-    private static final String CERTIFICATE_NAME = "Certificate";
-    private static final String DESCRIPTION = "Description";
-    private static final int DURATION = 50;
-    private static final BigDecimal PRICE = new BigDecimal("200");
-    private static final LocalDateTime CREATION_DATE = LocalDateTime.now();
-    private static final LocalDateTime LAST_UPDATE_DATE = LocalDateTime.now();
 
     private final GiftCertificateDaoImpl certificateDao;
     private Tag tag;
@@ -59,8 +47,8 @@ class GiftCertificateDaoImplTest {
                 .description("Description")
                 .price(new BigDecimal("10"))
                 .duration(5)
-                .createDate(LocalDateTime.of(1990, 10, 10, 10, 10))
-                .lastUpdateDate(LocalDateTime.of(1990, 10, 10, 10, 10))
+                .createDate(LocalDateTime.of(2001, 9, 10, 10, 10))
+                .lastUpdateDate(LocalDateTime.of(2001, 9, 10, 10, 10))
                 .tagList(Set.of(tag))
                 .build();
         deletedCertificate = GiftCertificate.builder()
@@ -71,7 +59,6 @@ class GiftCertificateDaoImplTest {
                 .createDate(LocalDateTime.of(2021, 10, 8, 11, 11, 11))
                 .lastUpdateDate(LocalDateTime.of(2021, 1, 1, 1, 22, 11))
                 .build();
-        /*attribute = GiftCertificateAttribute.builder().searchPart("certificate").build();*/
     }
 
 
@@ -107,11 +94,12 @@ class GiftCertificateDaoImplTest {
     }
 
 
-    /*@Test
+    @Test
     void findByAttributes() {
-        List<GiftCertificate> actual = certificateDao.findByAttributes(attribute, 0, 3);
-        assertEquals(3, actual.size());
-    }*/
+        List<GiftCertificate> actual = certificateDao.findByAttributes(GiftCertificateAttribute
+                .builder().searchPart("certificate1").build(), 0, 3);
+        assertEquals(1, actual.size());
+    }
 
     @Test
     void delete() {
@@ -136,9 +124,10 @@ class GiftCertificateDaoImplTest {
         boolean actual = certificateDao.isGiftCertificateUsedInOrders(1000L);
         assertTrue(actual);
     }
-    /*@Test
+    @Test
     void findEntityNumberByAttribute() {
-        long actual = certificateDao.findEntityNumber(attribute);
-        assertEquals(3L, actual);
-    }*/
+        long actual = certificateDao.findEntityNumber(GiftCertificateAttribute.builder()
+                .tagNameList(List.of("EPAM","MAVEN")).build());
+        assertEquals(1L, actual);
+    }
 }

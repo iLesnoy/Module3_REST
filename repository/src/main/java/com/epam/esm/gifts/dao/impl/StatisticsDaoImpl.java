@@ -22,9 +22,8 @@ public class StatisticsDaoImpl implements StatisticsDao {
             	SELECT u.id FROM users as u
                 JOIN orders as ord ON ord.users_id = u.id
             	GROUP BY u.id ORDER BY sum(ord.order_cost) DESC LIMIT 1
-            ) GROUP BY t.id ORDER BY count(t.id) DESC LIMIT 1;""";
+            ) GROUP BY t.id ORDER BY count(t.id) DESC LIMIT 1""";
 
-    @Percentage
     EntityManager entityManager;
 
     @Autowired
