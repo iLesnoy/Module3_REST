@@ -43,7 +43,7 @@ public class SqlQueryBuilder {
         return CollectionUtils.isEmpty(tagNameList)
                 ? criteriaBuilder.conjunction()
                 : tagNameList.stream().map(tagName -> {
-            Join<GiftCertificate, Tag> tagJoin = root.join("tag_list");
+            Join<GiftCertificate, Tag> tagJoin = root.join("tagList");
             return criteriaBuilder.equal(tagJoin.get("name"), tagName);
         }).reduce(criteriaBuilder.conjunction(), criteriaBuilder::and);
     }
@@ -77,7 +77,7 @@ public class SqlQueryBuilder {
     }
 
     private Order buildOrderByField(Root<GiftCertificate> root, String fieldName, String orderSort) {
-        return orderSort.equals("DEFAULT_SORT") ? criteriaBuilder.asc(root.get(fieldName)) : criteriaBuilder.desc(root.get(fieldName));
+        return orderSort.equals("asc") ? criteriaBuilder.asc(root.get(fieldName)) : criteriaBuilder.desc(root.get(fieldName));
     }
 
 }

@@ -9,7 +9,6 @@ import com.epam.esm.gifts.dto.CustomPageable;
 import com.epam.esm.gifts.dto.ResponseOrderDto;
 import com.epam.esm.gifts.dto.UserDto;
 import com.epam.esm.gifts.exception.SystemException;
-import com.epam.esm.gifts.model.Order;
 import com.epam.esm.gifts.model.User;
 import com.epam.esm.gifts.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;

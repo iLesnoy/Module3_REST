@@ -4,11 +4,11 @@ import com.epam.esm.gifts.StatisticsService;
 import com.epam.esm.gifts.converter.TagConverter;
 import com.epam.esm.gifts.dao.impl.StatisticsDaoImpl;
 import com.epam.esm.gifts.dto.TagDto;
-import com.epam.esm.gifts.model.Tag;
+import com.epam.esm.gifts.exception.SystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import static com.epam.esm.gifts.exception.ExceptionCode.NON_EXISTENT_ENTITY;
 
 @Service
 public class StatisticsServiceImpl implements StatisticsService {
@@ -22,8 +22,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Override
     public TagDto mostWidelyUsedTag() {
-        Optional<Tag> optionalTag = statisticsDao.findMostPopularTag();
-        return TagConverter.tagToDto(optionalTag.get());
+        return statisticsDao.findMostPopularTag()
+                .map(TagConverter::tagToDto)
+                .orElseThrow(() -> new SystemException(NON_EXISTENT_ENTITY));
     }
 }
 

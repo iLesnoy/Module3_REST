@@ -22,6 +22,8 @@ public class GiftCertificateValidator {
     private static final String PRICE_REGEX = "^(\\d+|[\\.\\,]?\\d+){1,2}$";
     private static final String DESCRIPTION_REGEX = "[\\p{Alpha}А-Яа-я\\d-.,:;!?()\" ]{2,225}";
     private static final Set<String> AVAILABLE_SORT_ORDERS = Set.of("asc", "desc");
+    private static final Set<String> AVAILABLE_SORTING_FIELDS = Set.of("id", "name","description"
+    ,"price","duration","createDate","lastUpdateDate");
     private static final String PAGE_REGEX = "\\d+";
 
 
@@ -51,13 +53,12 @@ public class GiftCertificateValidator {
         return (CollectionUtils.isEmpty(tagNameList) || tagNameList.stream()
                 .allMatch(tagName -> Objects.nonNull(tagName) && isNameValid(tagName)))
                 && isDescriptionValid(searchPart)
-                && (Objects.isNull(sortingFieldList) /*|| GiftCertificateField.getNameList().containsAll(sortingFieldList))*/
+                && (Objects.isNull(sortingFieldList) || AVAILABLE_SORTING_FIELDS.contains(searchPart)
                 && (Objects.isNull(orderSort) || AVAILABLE_SORT_ORDERS.contains(orderSort.toLowerCase())));
     }
 
     public static boolean isPriceValid(BigDecimal price) {
-        return price == null
-                ? Objects.nonNull(price) && matchPriceToRegex(price)
+        return price == null ? Objects.nonNull(price) && matchPriceToRegex(price)
                 : Objects.isNull(price) || matchPriceToRegex(price);
     }
 

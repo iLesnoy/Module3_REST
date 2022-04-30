@@ -4,6 +4,7 @@ import com.epam.esm.gifts.dto.CustomPage;
 import com.epam.esm.gifts.dto.CustomPageable;
 
 public interface BaseService<T> {
+
     T create(T t);
 
     T update(Long id, T t);
