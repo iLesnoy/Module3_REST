@@ -31,7 +31,7 @@ public class ControllerAdvisor {
     }
 
     @ExceptionHandler(SystemException.class)
-    public ResponseEntity<Object> handleGiftSystemException(SystemException e, Locale locale) {
+    public ResponseEntity<Object> handleSystemException(SystemException e, Locale locale) {
         final int errorCode = e.getErrorCode();
         return new ResponseEntity<>(createResponse(errorCode, locale), getHttpStatusByCode(errorCode));
     }

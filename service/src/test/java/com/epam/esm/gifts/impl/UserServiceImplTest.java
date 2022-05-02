@@ -8,7 +8,7 @@ import com.epam.esm.gifts.exception.SystemException;
 import com.epam.esm.gifts.model.GiftCertificate;
 import com.epam.esm.gifts.model.Order;
 import com.epam.esm.gifts.model.User;
-import com.epam.esm.gifts.validator.GiftCertificateValidator;
+import com.epam.esm.gifts.validator.EntityValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +43,7 @@ class UserServiceImplTest {
     @Mock
     UserConverter userConverter;
     @Mock
-    GiftCertificateValidator validator;
+    EntityValidator validator;
     @Mock
     OrderConverter orderConverter;
 

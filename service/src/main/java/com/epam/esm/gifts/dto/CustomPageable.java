@@ -23,6 +23,6 @@ public class CustomPageable {
     }
 
     public void setPage(Integer page) {
-        this.page = Objects.nonNull(page) ? page - 1 : DEFAULT_PAGE;
+        this.page = Objects.nonNull(page) ? page: DEFAULT_PAGE;
     }
 }

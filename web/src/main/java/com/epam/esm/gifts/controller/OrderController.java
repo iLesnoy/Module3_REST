@@ -1,22 +1,17 @@
 package com.epam.esm.gifts.controller;
 
-import com.epam.esm.gifts.converter.OrderConverter;
-import com.epam.esm.gifts.converter.UserConverter;
 import com.epam.esm.gifts.dto.CustomPage;
 import com.epam.esm.gifts.dto.CustomPageable;
 import com.epam.esm.gifts.dto.RequestOrderDto;
 import com.epam.esm.gifts.dto.ResponseOrderDto;
 import com.epam.esm.gifts.hateaos.HateoasBuilder;
 import com.epam.esm.gifts.impl.OrderServiceImpl;
-import com.epam.esm.gifts.model.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/api/order")
+@RequestMapping("/api/orders")
 public class OrderController {
 
 

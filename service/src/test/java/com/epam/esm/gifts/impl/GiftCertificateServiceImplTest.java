@@ -5,12 +5,11 @@ import com.epam.esm.gifts.converter.GiftCertificateConverter;
 import com.epam.esm.gifts.converter.TagConverter;
 import com.epam.esm.gifts.dao.impl.GiftCertificateDaoImpl;
 import com.epam.esm.gifts.dto.*;
-import com.epam.esm.gifts.exception.ExceptionCode;
 import com.epam.esm.gifts.exception.SystemException;
 import com.epam.esm.gifts.model.GiftCertificate;
 import com.epam.esm.gifts.model.GiftCertificateAttribute;
 import com.epam.esm.gifts.model.Tag;
-import com.epam.esm.gifts.validator.GiftCertificateValidator;
+import com.epam.esm.gifts.validator.EntityValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,7 +61,7 @@ class GiftCertificateServiceImplTest {
     @Mock
     private GiftCertificateDaoImpl certificateDao;
     @Mock
-    private GiftCertificateValidator validator;
+    private EntityValidator validator;
     @Mock
     private GiftCertificateConverter certificateConverter;
     @Mock

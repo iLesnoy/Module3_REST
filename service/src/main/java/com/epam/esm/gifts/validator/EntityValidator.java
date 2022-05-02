@@ -11,7 +11,7 @@ import java.util.*;
 import static com.epam.esm.gifts.exception.ExceptionCode.*;
 
 @Component
-public class GiftCertificateValidator {
+public class EntityValidator {
 
     private static final int MIN_PERIOD = 1;
     private static final int MAX_PERIOD = 365;
@@ -144,7 +144,6 @@ public class GiftCertificateValidator {
             throw new SystemException(NON_EXISTENT_PAGE);
         }
     }
-
 
 
     public void checkOrderValidation(RequestOrderDto order) {

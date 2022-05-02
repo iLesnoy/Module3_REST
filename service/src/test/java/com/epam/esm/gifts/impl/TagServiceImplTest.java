@@ -1,35 +1,29 @@
 package com.epam.esm.gifts.impl;
 
 
-import com.epam.esm.gifts.converter.GiftCertificateConverter;
 import com.epam.esm.gifts.converter.TagConverter;
-import com.epam.esm.gifts.dao.TagDao;
 import com.epam.esm.gifts.dao.impl.TagDaoImpl;
 import com.epam.esm.gifts.dto.CustomPage;
 import com.epam.esm.gifts.dto.CustomPageable;
 import com.epam.esm.gifts.dto.TagDto;
-import com.epam.esm.gifts.exception.ExceptionCode;
 import com.epam.esm.gifts.exception.SystemException;
 import com.epam.esm.gifts.model.GiftCertificate;
 import com.epam.esm.gifts.model.Tag;
-import com.epam.esm.gifts.validator.GiftCertificateValidator;
+import com.epam.esm.gifts.validator.EntityValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.esm.gifts.exception.ExceptionCode.TAG_INVALID_NAME;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static com.epam.esm.gifts.validator.GiftCertificateValidator.*;
 
 @ExtendWith(MockitoExtension.class)
 class TagServiceImplTest {
@@ -39,7 +33,7 @@ class TagServiceImplTest {
     @Mock
     private TagDaoImpl tagDao;
     @Mock
-    private GiftCertificateValidator validator;
+    private EntityValidator validator;
     @Mock
     private TagConverter tagConverter;
 

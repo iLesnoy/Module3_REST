@@ -10,7 +10,7 @@ import com.epam.esm.gifts.dto.ResponseOrderDto;
 import com.epam.esm.gifts.dto.UserDto;
 import com.epam.esm.gifts.exception.SystemException;
 import com.epam.esm.gifts.model.User;
-import com.epam.esm.gifts.validator.GiftCertificateValidator;
+import com.epam.esm.gifts.validator.EntityValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,12 +25,12 @@ public class UserServiceImpl implements UserService {
 
 
     private UserDaoImpl userDao;
-    private GiftCertificateValidator validation;
+    private EntityValidator validation;
     private UserConverter userConverter;
     private OrderConverter orderConverter;
 
     @Autowired
-    public UserServiceImpl(UserDaoImpl userDao, GiftCertificateValidator validation,
+    public UserServiceImpl(UserDaoImpl userDao, EntityValidator validation,
                            UserConverter userConverter, OrderConverter orderConverter) {
         this.userDao = userDao;
         this.validation = validation;

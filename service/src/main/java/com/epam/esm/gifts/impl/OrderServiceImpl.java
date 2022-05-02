@@ -11,7 +11,7 @@ import com.epam.esm.gifts.exception.SystemException;
 import com.epam.esm.gifts.model.GiftCertificate;
 import com.epam.esm.gifts.model.Order;
 import com.epam.esm.gifts.model.User;
-import com.epam.esm.gifts.validator.GiftCertificateValidator;
+import com.epam.esm.gifts.validator.EntityValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +26,13 @@ import static com.epam.esm.gifts.exception.ExceptionCode.*;
 public class OrderServiceImpl implements OrderService {
 
     private OrderDaoImpl orderDao;
-    private GiftCertificateValidator validator;
+    private EntityValidator validator;
     private UserServiceImpl userService;
     private GiftCertificateServiceImpl giftCertificateService;
     private OrderConverter orderConverter;
 
     @Autowired
-    public OrderServiceImpl(OrderDaoImpl orderDao, GiftCertificateValidator validator, UserServiceImpl userService,
+    public OrderServiceImpl(OrderDaoImpl orderDao, EntityValidator validator, UserServiceImpl userService,
                             GiftCertificateServiceImpl giftCertificateService, OrderConverter orderConverter) {
         this.orderDao = orderDao;
         this.validator = validator;
@@ -71,6 +71,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public CustomPage<ResponseOrderDto> findAll(CustomPageable pageable) {
         long totalOrderNumber = orderDao.findEntityNumber();
         validator.checkPageableValidation(pageable,totalOrderNumber);

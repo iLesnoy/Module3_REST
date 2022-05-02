@@ -10,7 +10,7 @@ import com.epam.esm.gifts.exception.SystemException;
 import com.epam.esm.gifts.model.GiftCertificate;
 import com.epam.esm.gifts.model.GiftCertificateAttribute;
 import com.epam.esm.gifts.model.Tag;
-import com.epam.esm.gifts.validator.GiftCertificateValidator;
+import com.epam.esm.gifts.validator.EntityValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,11 +31,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     GiftCertificateAttributeConverter attributeConverter; //TODO add interface?
     GiftCertificateDaoImpl giftCertificateDao;
     TagServiceImpl tagService;
-    GiftCertificateValidator validator;
+    EntityValidator validator;
 
     @Autowired
     public GiftCertificateServiceImpl(GiftCertificateConverter giftCertificateConverter, GiftCertificateAttributeConverter attributeConverter,
-                                      GiftCertificateDaoImpl giftCertificateDao, TagServiceImpl tagService, GiftCertificateValidator validator,
+                                      GiftCertificateDaoImpl giftCertificateDao, TagServiceImpl tagService, EntityValidator validator,
                                       TagConverter tagConverter) {
         this.giftCertificateConverter = giftCertificateConverter;
         this.tagConverter = tagConverter;
@@ -95,6 +95,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
 
     @Override
+    @Transactional
     public CustomPage<GiftCertificateDto> searchByParameters(GiftCertificateAttributeDto attributeDto, CustomPageable pageable) {
         checkSearchParams(attributeDto, pageable);
         GiftCertificateAttribute attribute = attributeConverter.convert(attributeDto);

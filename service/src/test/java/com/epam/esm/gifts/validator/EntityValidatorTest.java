@@ -18,16 +18,16 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class GiftCertificateValidatorTest {
+class EntityValidatorTest {
 
-    private static GiftCertificateValidator validator;
+    private static EntityValidator validator;
     private static GiftCertificateAttributeDto attributeDto;
     private static CustomPageable pageable;
     private static RequestOrderDto orderDto;
 
     @BeforeAll
     static void init() {
-        validator= new GiftCertificateValidator();
+        validator= new EntityValidator();
         attributeDto = GiftCertificateAttributeDto.builder()
                 .tagNameList(List.of("one", "two", "three"))
                 .searchPart("any")

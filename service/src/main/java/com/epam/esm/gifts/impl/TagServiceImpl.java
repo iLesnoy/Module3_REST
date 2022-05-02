@@ -9,7 +9,7 @@ import com.epam.esm.gifts.dto.TagDto;
 import com.epam.esm.gifts.exception.SystemException;
 import com.epam.esm.gifts.model.GiftCertificate;
 import com.epam.esm.gifts.model.Tag;
-import com.epam.esm.gifts.validator.GiftCertificateValidator;
+import com.epam.esm.gifts.validator.EntityValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,13 +24,13 @@ public class TagServiceImpl implements TagService {
 
     TagDaoImpl tagDao;
     TagConverter tagConverter;
-    GiftCertificateValidator giftCertificateValidator;
+    EntityValidator entityValidator;
 
     @Autowired
-    public TagServiceImpl(TagDaoImpl tagDao, TagConverter tagConverter, GiftCertificateValidator giftCertificateValidator) {
+    public TagServiceImpl(TagDaoImpl tagDao, TagConverter tagConverter, EntityValidator entityValidator) {
         this.tagDao = tagDao;
         this.tagConverter = tagConverter;
-        this.giftCertificateValidator = giftCertificateValidator;
+        this.entityValidator = entityValidator;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class TagServiceImpl implements TagService {
     }
 
     public Tag createTag(Tag tag) {
-        if (giftCertificateValidator.isNameValid(tag.getName())) {
+        if (entityValidator.isNameValid(tag.getName())) {
             return tagDao.findByName(tag.getName()).orElseGet(() -> tagDao.create(tag));
         }
         throw new SystemException(TAG_INVALID_NAME);
@@ -51,7 +51,7 @@ public class TagServiceImpl implements TagService {
     public TagDto update(Long id, TagDto tagDto) {
         Optional<Tag> optionalUser = tagDao.findById(id);
         if (optionalUser.isPresent()) {
-            if (giftCertificateValidator.isNameValid(tagDto.getName())) {
+            if (entityValidator.isNameValid(tagDto.getName())) {
                 tagDao.update(tagConverter.dtoToTag(tagDto));
             }
             throw new SystemException(TAG_INVALID_NAME);
@@ -60,12 +60,13 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional
     public CustomPage<TagDto> findAll(CustomPageable pageable) {
-        if (!giftCertificateValidator.isPageDataValid(pageable)) {
+        if (!entityValidator.isPageDataValid(pageable)) {
             throw new SystemException(INVALID_DATA_OF_PAGE);
         }
         long totalTagNumber = tagDao.findEntityNumber();
-        if (!giftCertificateValidator.isPageExists(pageable, totalTagNumber)) {
+        if (!entityValidator.isPageExists(pageable, totalTagNumber)) {
             throw new SystemException(NON_EXISTENT_PAGE);
         }
         int offset = calculateOffset(pageable);
