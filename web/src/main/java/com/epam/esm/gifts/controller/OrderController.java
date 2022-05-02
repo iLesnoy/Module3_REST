@@ -46,7 +46,7 @@ public class OrderController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseOrderDto create(@RequestBody RequestOrderDto orderDto){
-        ResponseOrderDto responseOrderDto = orderService.create(orderDto);
+        ResponseOrderDto responseOrderDto = orderService.createOrder(orderDto);
         hateoasBuilder.setLinks(responseOrderDto);
         return responseOrderDto;
     }

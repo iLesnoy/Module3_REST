@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.gifts.exception.ExceptionCode.NON_EXISTENT_ENTITY;
+import static com.epam.esm.gifts.exception.ExceptionCode.*;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -48,8 +48,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public ResponseOrderDto create(RequestOrderDto orderDto) {
-        validator.checkOrderValidation(orderDto);
+    public ResponseOrderDto createOrder(RequestOrderDto orderDto) {
+        validator.isRequestOrderDataValid(orderDto);
         User user = userService.findUserById(orderDto.getUserId());
         List<GiftCertificate> giftCertificates = orderDto.getCertificateIdList()
                 .stream().map(giftCertificateService::findCertificateById).collect(Collectors.toList());
@@ -72,8 +72,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public CustomPage<ResponseOrderDto> findAll(CustomPageable pageable) {
-        int offset = calculateOffset(pageable);
         long totalOrderNumber = orderDao.findEntityNumber();
+        validator.checkPageableValidation(pageable,totalOrderNumber);
+        int offset = calculateOffset(pageable);
         List<ResponseOrderDto>dtoList = orderDao.findAll(offset,pageable.getSize())
                 .stream().map(orderConverter::orderToDto).toList();
         return new CustomPage<>(dtoList,pageable,totalOrderNumber);
@@ -81,11 +82,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void delete(Long id) {
-        Optional<Order>order = orderDao.findById(id);
-        if(order.isPresent()){
-            orderDao.delete(order.get());
-        }
-        throw new SystemException(NON_EXISTENT_ENTITY);
+        throw new UnsupportedOperationException("delete method is not supported in OrderServiceImpl class");
     }
 
     @Override

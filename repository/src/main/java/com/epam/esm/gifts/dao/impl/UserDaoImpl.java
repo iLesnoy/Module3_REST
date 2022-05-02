@@ -3,13 +3,8 @@ package com.epam.esm.gifts.dao.impl;
 import com.epam.esm.gifts.dao.UserDao;
 import com.epam.esm.gifts.model.Order;
 import com.epam.esm.gifts.model.User;
-import jdk.jfr.Percentage;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -21,7 +16,6 @@ import java.util.Optional;
 @Repository
 public class UserDaoImpl implements UserDao {
 
-    @Percentage
     private final EntityManager entityManager;
     private final CriteriaBuilder cb;
 

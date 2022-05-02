@@ -41,8 +41,6 @@ class TagServiceImplTest {
     @Mock
     private GiftCertificateValidator validator;
     @Mock
-    private GiftCertificateConverter certificateConverter;
-    @Mock
     private TagConverter tagConverter;
 
     private Tag tag;
@@ -56,7 +54,7 @@ class TagServiceImplTest {
         giftCertificate= GiftCertificate.builder().id(1L).name("name").build();
         tag = Tag.builder().id(1L).name("name").build();
         tagDto = TagDto.builder().id(1L).name("name").build();
-        pageable = new CustomPageable();
+        pageable = CustomPageable.builder().size(1).page(10).build();
         pageable.setPage(5);
         pageable.setSize(1);
         tagPage = new CustomPage<>(List.of(tagDto, tagDto), pageable, 15L);
@@ -107,6 +105,16 @@ class TagServiceImplTest {
         doReturn(tagDto).when(tagConverter).tagToDto(any(Tag.class));
         CustomPage<TagDto> actual = service.findAll(pageable);
         assertEquals(tagPage, actual);
+    }
+
+    @Test
+    void findAllPageNotExist() {
+        doReturn(true).when(validator).isPageDataValid(any(CustomPageable.class));
+        doReturn(15L).when(tagDao).findEntityNumber();
+        doReturn(false).when(validator).isPageExists(any(CustomPageable.class), anyLong());
+        doReturn(List.of(tag, tag)).when(tagDao).findAll(anyInt(), anyInt());
+        SystemException thrown = assertThrows(SystemException.class, () -> service.findAll(pageable));
+        assertEquals(40051, thrown.getErrorCode());
     }
 
     @Test

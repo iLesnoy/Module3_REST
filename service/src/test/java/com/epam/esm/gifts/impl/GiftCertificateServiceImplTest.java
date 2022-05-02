@@ -100,7 +100,7 @@ class GiftCertificateServiceImplTest {
                 .lastUpdateDate(LocalDateTime.of(2003, 1, 2, 3, 4))
                 .tagDtoList(List.of(tagDto))
                 .build();
-        pageable = new CustomPageable();
+        pageable = CustomPageable.builder().page(1).size(20).build();
         pageable.setPage(10);
         pageable.setSize(1);
         page = new CustomPage<>(List.of(certificateDto), pageable, 30L);
@@ -194,7 +194,7 @@ class GiftCertificateServiceImplTest {
     @Test
     void findAll() {
         try {
-            service.findAll(new CustomPageable());
+            service.findAll(pageable);
             fail("command is not supported, please use searchByParameters");
         } catch (UnsupportedOperationException e) {
             assertTrue(true);

@@ -6,5 +6,5 @@ import com.epam.esm.gifts.model.Order;
 
 public interface OrderService extends BaseService<ResponseOrderDto>{
 
-    ResponseOrderDto create(RequestOrderDto order);
+    ResponseOrderDto createOrder(RequestOrderDto order);
 }

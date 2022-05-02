@@ -79,6 +79,10 @@ public class UserServiceImpl implements UserService {
     public CustomPage<UserDto> findAll(CustomPageable pageable) {
         long userNumber = userDao.findEntityNumber();
         validation.checkPageableValidation(pageable, userNumber);
+        long totalTagNumber = userDao.findEntityNumber();
+        if (!validation.isPageExists(pageable, totalTagNumber)) {
+            throw new SystemException(NON_EXISTENT_PAGE);
+        }
         int offset = calculateOffset(pageable);
         List<UserDto> userDtoList = userDao.findAll(offset, pageable.getSize())
                 .stream()
@@ -101,7 +105,7 @@ public class UserServiceImpl implements UserService {
     public User findUserById(Long id) {
         Optional<User> optionalUser = userDao.findById(id);
         if (optionalUser.isPresent()) {
-            return userDao.findById(id).get();
+            return optionalUser.get();
         } else {
             throw new SystemException(NON_EXISTENT_ENTITY);
         }
@@ -118,13 +122,17 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public CustomPage<ResponseOrderDto> findUserOrderList(Long id, CustomPageable pageable) {
-        //если pageable validnoe ->
+        if(!validation.isPageDataValid(pageable)){
+            throw new SystemException(INVALID_DATA_OF_PAGE);
+        }
         Optional<User> optionalUser = userDao.findById(id);
         Long totalElements = userDao.userOrderNumber(optionalUser.get());
+        if(!validation.isPageExists(pageable,totalElements)){
+            throw new SystemException(NON_EXISTENT_PAGE);
+        }
         int offset = calculateOffset(pageable);
         List<ResponseOrderDto> userOrder = userDao.finUserOrder(optionalUser.get(), offset, pageable.getSize())
                 .stream().map(orderConverter::orderToDto).toList();
-        System.out.println(userOrder);
         return new CustomPage<>(userOrder, pageable, totalElements);
     }
 }

@@ -1,10 +1,18 @@
 package com.epam.esm.gifts.validator;
 
+import com.epam.esm.gifts.dto.CustomPageable;
+import com.epam.esm.gifts.dto.GiftCertificateAttributeDto;
+import com.epam.esm.gifts.dto.RequestOrderDto;
 import com.epam.esm.gifts.dto.TagDto;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +20,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GiftCertificateValidatorTest {
 
-    GiftCertificateValidator validator;
+    private static GiftCertificateValidator validator;
+    private static GiftCertificateAttributeDto attributeDto;
+    private static CustomPageable pageable;
+    private static RequestOrderDto orderDto;
+
+    @BeforeAll
+    static void init() {
+        validator= new GiftCertificateValidator();
+        attributeDto = GiftCertificateAttributeDto.builder()
+                .tagNameList(List.of("one", "two", "three"))
+                .searchPart("any")
+                .sortingFieldList(List.of("id", "name", "description"))
+                .orderSort("desc")
+                .build();
+        pageable = CustomPageable.builder().size(1).page(10).build();
+        orderDto = RequestOrderDto.builder().userId(9L).certificateIdList(List.of(1L,3L,6L,8L,10L)).build();
+    }
 
     private static Object[][] tagValues(){
         return new Object[][] {
@@ -32,7 +56,7 @@ class GiftCertificateValidatorTest {
     }
 
     @Test
-    void isStrongTagListValidWithValidTagList() {
+    void isTagListValidWithValidTagList() {
         List<TagDto> validTagList = List.of(TagDto.builder().id(0L).name("NameOne").build()
                 , TagDto.builder().id(0L).name("NameTwo").build()
                 , TagDto.builder().id(0L).name("NameThree").build());
@@ -41,7 +65,7 @@ class GiftCertificateValidatorTest {
     }
 
     @Test
-    void isStrongTagNameListValidReturnsFalseWithEmptyTagList() {
+    void isTagNameListValidReturnsFalseWithEmptyTagList() {
         List<TagDto> emptyTagList = List.of();
         boolean condition = validator.isTagListValid(emptyTagList);
         assertFalse(condition);
@@ -73,53 +97,86 @@ class GiftCertificateValidatorTest {
 
     @Test
     void isAttributeDtoValid() {
+        boolean condition = validator.isAttributeDtoValid(attributeDto);
+        assertTrue(condition);
     }
 
     @Test
-    void isPriceValid() {
-    }
-
-    @Test
-    void isRequestOrderDataValid() {
+    void isRequestOrderDataValidReturnsFalseWithInvalidCertificateParam() {
+        orderDto.setCertificateIdList(new ArrayList<>());
+        orderDto.getCertificateIdList().add(null);
+        boolean condition = validator.isRequestOrderDataValid(orderDto);
+        assertFalse(condition);
     }
 
     @Test
     void isPageDataValid() {
+        boolean condition = validator.isPageDataValid(pageable);
+        assertTrue(condition);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"-1, 35", "146, -1"})
+    void isPageDataValidReturnsFalseWithInvalidParams(Integer size, Integer page) {
+        pageable.setSize(size);
+        pageable.setPage(page);
+        boolean condition = validator.isPageDataValid(pageable);
+        assertFalse(condition);
     }
 
     @Test
     void isPageExists() {
+        boolean condition = validator.isPageExists(pageable,20L);
+        assertTrue(condition);
     }
 
-    @Test
-    void isDurationValid() {
+
+    private static Object[][] description(){
+        return new Object[][] {
+                {"description",true},
+                {"descr1",false},
+                {"name++C+",false},
+                {"hello?0_/",false}
+        };
     }
 
-    @Test
-    void isNameValid() {
+    @ParameterizedTest
+    @MethodSource("description")
+    void isDescriptionValid(String description,boolean expected) {
+        boolean condition = validator.isDescriptionValid(description);
+        assertEquals(condition,expected);
     }
 
-    @Test
-    void isDescriptionValid() {
+    @ParameterizedTest
+    @ValueSource(strings = {"43.56", "51", "02", "443", "100", "0.12"})
+    void isPriceValidReturnsTrueWithInsertedValidPrice(String strPrice) {
+        BigDecimal validPrice = new BigDecimal(strPrice);
+        boolean condition = validator.isPriceValid(validPrice);
+        assertTrue(condition);
     }
 
-    @Test
-    void checkGiftValidation() {
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"5545.34", "5", "0", "450", "10000", "0.9"})
+    void isSoftPriceValidReturnsTrueWithValidPrice(String strPrice) {
+        BigDecimal validPrice = strPrice != null ? new BigDecimal(strPrice) : null;
+        boolean condition = validator.isPriceValid(validPrice);
+        assertTrue(condition);
     }
 
-    /*    private static Object[][] tagValues(){
-            return new Object[][] {
-                    {List.of(new TagDto(7, "lenovo")),true},
-                    {List.of(new TagDto(2, "hello")),true},
-                    {List.of(new TagDto(4, "|_=_|")),false},
-                    {List.of(new TagDto(1, "tag3")),false}
-            };
-        }
+    @ParameterizedTest
+    @ValueSource(ints = {6, 7, 8, 9})
+    void isDurationValid(int validDuration) {
+        boolean condition = validator.isDurationValid(validDuration);
+        assertTrue(condition);
+    }
+
+
 
     @ParameterizedTest
     @MethodSource("nameValues")
     void isNameValid(String name,boolean expected) {
-        boolean actual =validator.isNameValid(name, INSERT);
+        boolean actual = validator.isNameValid(name);
         assertEquals(expected,actual);
     }
 
@@ -132,81 +189,4 @@ class GiftCertificateValidatorTest {
         };
     }
 
-    @Test
-    void isNameValidReturnsFalseWithInsertedMoreThen65SymbolsName() {
-        String moreThenMaxSize= "N".repeat(66);
-        boolean condition = validator.isNameValid(moreThenMaxSize, INSERT);
-        assertFalse(condition);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"gift1", "gift-hello", "helloWorld", "привет"})
-    void isNameValidReturnsTrueInsertedValidParam(String validName) {
-        boolean condition = validator.isNameValid(validName, GiftCertificateValidator.ActionType.UPDATE);
-        assertTrue(condition);
-    }
-
-    @ParameterizedTest
-    @NullAndEmptySource
-    @ValueSource(strings = {"(hello-)", "rewt", "1234", "Ne&Stl", "<>?_)!@#", "'?'"})
-    void isNameValidReturnsFalseWithInsertedInvalidParams(String invalidName) {
-        boolean condition = validator.isNameValid(invalidName, INSERT);
-        assertFalse(condition);
-    }
-
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = {"cell", "simple+tag", "name", "name-"})
-    void isNameValidReturnsTrueWithUpdatedValidParams(String validName) {
-        boolean condition = validator.isNameValid(validName, GiftCertificateValidator.ActionType.UPDATE);
-        assertTrue(condition);
-    }
-
-
-    @ParameterizedTest
-    @ValueSource(strings = {"Description", "Description1", "Description2!", "Description;", "Description+", "Description-"})
-    void isDescriptionValid(String validDescription) {
-        boolean condition = validator.isDescriptionValid(validDescription, INSERT);
-        assertTrue(condition);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"43.56", "51", "02", "443", "1-00", "0.12"})
-    void isPriceValidReturnsTrueWithInsertedValidPrice(String strPrice) {
-        BigDecimal validPrice = new BigDecimal(strPrice);
-        boolean condition = validator.isPriceValid(validPrice, INSERT);
-        assertTrue(condition);
-    }
-
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = {"+14", "544554.55"})
-    void isPriceValidReturnsFalseWithInsertedValidPrice(String strPrice) {
-        BigDecimal validPrice = strPrice != null ? new BigDecimal(strPrice) : null;
-        boolean condition = validator.isPriceValid(validPrice, INSERT);
-        assertFalse(condition);
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = {6, 7, 8, 9})
-    void isDurationValid(int validDuration) {
-        boolean condition = validator.isDurationValid(validDuration, INSERT);
-        assertTrue(condition);
-    }
-
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = {"asc", "", "ASC", "DESC", "dec", "asC"})
-    void isOrderSortValidReturnsTrue(String orderSort) {
-        boolean condition = validator.isSortOrderValid(orderSort);
-        assertTrue(condition);
-    }
-
-    @ParameterizedTest
-    @EmptySource
-    @ValueSource(strings = {"hello", "DESC", " ", "desC ", " Asc"})
-    void isOrderSortValidReturnsFalseWithInvalidArg(String orderSort) {
-        boolean condition = validator.isSortOrderValid(orderSort);
-        assertFalse(condition);
-    }*/
 }

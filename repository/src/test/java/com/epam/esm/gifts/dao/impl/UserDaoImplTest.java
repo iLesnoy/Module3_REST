@@ -1,5 +1,6 @@
 package com.epam.esm.gifts.dao.impl;
 
+import com.epam.esm.gifts.model.GiftCertificate;
 import com.epam.esm.gifts.model.Order;
 import com.epam.esm.gifts.model.Tag;
 import com.epam.esm.gifts.model.User;
@@ -8,8 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,7 +21,9 @@ class UserDaoImplTest {
     private final UserDaoImpl userDao;
     private User user;
     private Order order;
-
+    private Tag tag;
+    private Set<Tag> tagSet;
+    private GiftCertificate giftCertificate;
 
     @Autowired
     public UserDaoImplTest(UserDaoImpl userDao) {
@@ -26,55 +31,34 @@ class UserDaoImplTest {
     }
 
 
-   /* @BeforeEach
+    @BeforeEach
     void setUp() {
-        order = Order.builder().id(2L).purchaseTime(2022-02-10 12:33:33).cost(new BigDecimal(200)).user(1L);
-        user = User.builder().id(1L).name("Yaraslau").orderList();
+        tag = Tag.builder().id(1L).name("tag").build();
+        giftCertificate = GiftCertificate.builder().id(1L).name("gift")
+                .price(new BigDecimal(200))
+                .createDate(LocalDateTime.now())
+                .tagList(tagSet).build();
+        order = Order.builder().id(1L)
+                .cost(new BigDecimal(200))
+                .purchaseTime(LocalDateTime.now())
+                .certificateList(List.of(giftCertificate)).build();
+        user = User.builder().id(1L).name("Yaraslau").orderList(List.of(order)).build();
+        order = Order.builder().id(2L).purchaseTime(LocalDateTime.now()).cost(new BigDecimal(200)).user(user).build();
     }
+
 
     @Test
     void findAll() {
-        List<Tag> tagList = tagDao.findAll(0,4);
-        System.out.println(tagList.size());
-        assertEquals(tagList.size(),4);
+        List<User> userList = userDao.findAll(0,5);
+        assertEquals(3,userList.size());
+    }
+
+
+    @Test
+    void userOrderNumber() {
     }
 
     @Test
-    void create() {
-        Tag actual = tagDao.create(expected);
-        assertEquals("maven",actual.getName());
-
+    void finUserOrder() {
     }
-
-    @Test
-    void findById() {
-        Optional<Tag> tag = tagDao.findById(1L);
-        System.out.println(tag.get());
-        assertEquals("Enum", tag.get().getName());
-    }
-
-    @Test
-    void update() {
-        expected.setId(1L);
-        expected.setName("Enum");
-        tagDao.update(expected);
-        Optional<Tag> tag = tagDao.findById(1L);
-        assertEquals("Enum", tag.get().getName());
-
-    }
-
-    @Test
-    void delete() {
-        expected.setId(2L);
-        expected.setName("EPAM");
-        tagDao.delete(expected);
-        List<Tag> tagList = tagDao.findAll(0,5);
-        assertTrue(true);
-    }
-
-    @Test
-    void findEntityNumber() {
-        long actual = tagDao.findEntityNumber();
-        assertEquals(4, actual);
-    }*/
 }
