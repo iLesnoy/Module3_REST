@@ -34,7 +34,7 @@ class GiftCertificateValidatorTest {
                 .sortingFieldList(List.of("id", "name", "description"))
                 .orderSort("desc")
                 .build();
-        pageable = CustomPageable.builder().size(1).page(10).build();
+        pageable = new CustomPageable();
         orderDto = RequestOrderDto.builder().userId(9L).certificateIdList(List.of(1L,3L,6L,8L,10L)).build();
     }
 

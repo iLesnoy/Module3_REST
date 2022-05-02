@@ -115,10 +115,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         if (optionalGiftCertificate.isPresent()) {
             if (giftCertificateDao.isGiftCertificateUsedInOrders(id)) {
                 giftCertificateDao.delete(optionalGiftCertificate.get());
+            } else {
+                throw new SystemException(USED_ENTITY);
             }
-            throw new SystemException(USED_ENTITY);
+        } else {
+            throw new SystemException(NON_EXISTENT_ENTITY);
         }
-        throw new SystemException(NON_EXISTENT_ENTITY);
     }
 
     private void setUpdatedFields(GiftCertificate persistedCertificate, GiftCertificateDto updatedCertificateDto) {

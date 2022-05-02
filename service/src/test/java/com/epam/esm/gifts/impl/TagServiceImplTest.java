@@ -54,7 +54,7 @@ class TagServiceImplTest {
         giftCertificate= GiftCertificate.builder().id(1L).name("name").build();
         tag = Tag.builder().id(1L).name("name").build();
         tagDto = TagDto.builder().id(1L).name("name").build();
-        pageable = CustomPageable.builder().size(1).page(10).build();
+        pageable = new CustomPageable();
         pageable.setPage(5);
         pageable.setSize(1);
         tagPage = new CustomPage<>(List.of(tagDto, tagDto), pageable, 15L);

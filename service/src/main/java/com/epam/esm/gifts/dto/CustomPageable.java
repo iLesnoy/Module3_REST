@@ -8,9 +8,7 @@ import lombok.Setter;
 
 import java.util.Objects;
 
-@Builder
-@Getter
-@Setter
+@Data
 public class CustomPageable {
     private static final Integer DEFAULT_SIZE = 1;
     private static final Integer DEFAULT_PAGE = 0;

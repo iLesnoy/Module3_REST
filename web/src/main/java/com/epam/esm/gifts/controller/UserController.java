@@ -6,6 +6,7 @@ import com.epam.esm.gifts.dto.CustomPageable;
 import com.epam.esm.gifts.dto.ResponseOrderDto;
 import com.epam.esm.gifts.dto.UserDto;
 import com.epam.esm.gifts.hateaos.HateoasBuilder;
+import com.epam.esm.gifts.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -57,5 +58,10 @@ public class UserController {
         page.getContent().forEach(hateoasBuilder::setLinks);
         return page;
     }
+
+    /*@PutMapping
+    public UserDto updateUser(@RequestBody Long id, UserDto user){
+        return userService.update(id,user);
+    }*/
 
 }

@@ -58,7 +58,7 @@ class OrderServiceImplTest {
     public void SetUp() {
         user = User.builder().id(1L).name("UserName").build();
         userDto = UserDto.builder().id(1L).name("UserName").build();
-        pageable = CustomPageable.builder().size(1).page(10).build();
+        pageable = new CustomPageable();
         certificate = GiftCertificate.builder().id(1L).name("NewCertificate").build();
         order = Order.builder().id(1L)
                 .purchaseTime((LocalDateTime.of(2001, 1, 1, 2, 3)))

@@ -1,6 +1,5 @@
 package com.epam.esm.gifts.impl;
 
-import com.epam.esm.gifts.BaseService;
 import com.epam.esm.gifts.TagService;
 import com.epam.esm.gifts.converter.TagConverter;
 import com.epam.esm.gifts.dao.impl.TagDaoImpl;
@@ -14,7 +13,6 @@ import com.epam.esm.gifts.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.List;
 import java.util.Optional;
@@ -51,10 +49,14 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto update(Long id, TagDto tagDto) {
-        if (giftCertificateValidator.isNameValid(tagDto.getName())) {
-            tagDao.update(tagConverter.dtoToTag(tagDto));
+        Optional<Tag> optionalUser = tagDao.findById(id);
+        if (optionalUser.isPresent()) {
+            if (giftCertificateValidator.isNameValid(tagDto.getName())) {
+                tagDao.update(tagConverter.dtoToTag(tagDto));
+            }
+            throw new SystemException(TAG_INVALID_NAME);
         }
-        throw new SystemException(TAG_INVALID_NAME);
+        throw new SystemException(NON_EXISTENT_ENTITY);
     }
 
     @Override
@@ -88,16 +90,14 @@ public class TagServiceImpl implements TagService {
         Optional<Tag> optionalTag = tagDao.findById(id);
         if (optionalTag.isPresent()) {
             List<GiftCertificate> tagList = tagDao.isTagUsed(optionalTag.get());
-            if (!tagList.isEmpty()) {
+            if (tagList.isEmpty()) {
+                tagDao.delete(optionalTag.get());
+            } else {
                 throw new SystemException(USED_ENTITY);
             }
-            tagDao.delete(optionalTag.get());
+        } else {
+            throw new SystemException(NON_EXISTENT_ENTITY);
         }
-        throw new SystemException(NON_EXISTENT_ENTITY);
     }
 
-    @Override
-    public TagDto findOrCreateTag(TagDto tagDto) {
-        return null;
-    }
 }

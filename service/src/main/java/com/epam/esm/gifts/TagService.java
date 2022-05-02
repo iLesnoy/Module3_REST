@@ -13,6 +13,4 @@ public interface TagService extends BaseService<TagDto> {
 
     void delete(Long id);
 
-    TagDto findOrCreateTag(TagDto tagDto);
-
 }

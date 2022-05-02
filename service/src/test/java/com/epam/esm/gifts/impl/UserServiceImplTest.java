@@ -51,7 +51,7 @@ class UserServiceImplTest {
     void setUp() {
         orders = List.of(ResponseOrderDto.builder().id(1L).build());
         responseOrderDto = ResponseOrderDto.builder().build();
-        pageable = CustomPageable.builder().page(5).size(15).build();
+        pageable = new CustomPageable();
         certificate = GiftCertificate.builder().id(1L).name("certificate").build();
         order = Order.builder().id(1L)
                 .purchaseTime((LocalDateTime.of(2001, 1, 1, 2, 3)))
@@ -133,7 +133,7 @@ class UserServiceImplTest {
         doReturn(true).when(validator).isPageExists(any(CustomPageable.class), anyLong());
         doReturn(userDtos).when(userDao).findAll(Mockito.anyInt(),Mockito.anyInt());
         doReturn(userDto).when(userConverter).userToDto(Mockito.any(User.class));
-        CustomPage<UserDto>actual = userService.findAll(CustomPageable.builder().build());
+        CustomPage<UserDto>actual = userService.findAll(pageable);
         assertEquals(pageable,actual);
     }
 
@@ -185,7 +185,7 @@ class UserServiceImplTest {
     @Test
     void findUserOrderListThrowInvalidData() {
         doReturn(false).when(validator).isPageDataValid(any(CustomPageable.class));
-        SystemException exception = assertThrows(SystemException.class,()->userService.findUserOrderList(1L, CustomPageable.builder().build()));
+        SystemException exception = assertThrows(SystemException.class,()->userService.findUserOrderList(1L, pageable));
         assertEquals(40050,exception.getErrorCode());
     }
 }

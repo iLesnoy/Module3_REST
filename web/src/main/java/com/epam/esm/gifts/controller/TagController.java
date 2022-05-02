@@ -28,19 +28,14 @@ public class TagController {
         return tagService.findById(id);
     }
 
-    @GetMapping
-    public TagDto findOrCreateByName(@RequestBody TagDto tagDto) {
-        return tagService.findOrCreateTag(tagDto);
-    }
-
-    @PutMapping
-    public TagDto update(@RequestBody TagDto tagDto) {
-        return tagService.update(tagDto.getId(),tagDto);
-    }
-
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTag(@PathVariable Long id) {
          tagService.delete(id);
     }
+
+    /*@PutMapping
+    public TagDto update(@RequestBody TagDto tagDto) {
+        return tagService.update(tagDto.getId(),tagDto);
+    }*/
 }

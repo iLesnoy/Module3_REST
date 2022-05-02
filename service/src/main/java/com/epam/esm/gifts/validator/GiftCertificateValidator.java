@@ -21,8 +21,7 @@ public class GiftCertificateValidator {
     private static final Set<String> AVAILABLE_SORT_ORDERS = Set.of("asc", "desc");
     private static final Set<String> AVAILABLE_SORTING_FIELDS = Set.of("id", "name", "description"
             , "price", "duration", "createDate", "lastUpdateDate");
-    private static final String PAGE_REGEX = "\\d+";
-    Set<Integer>integers = new HashSet<>();
+    private static final String PAGE_REGEX = "^\\d+$";
 
 
     private boolean isNotNullAndBlank(String field) {
