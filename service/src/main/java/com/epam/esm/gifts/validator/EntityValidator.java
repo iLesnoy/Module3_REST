@@ -140,9 +140,6 @@ public class EntityValidator {
         if (!isPageDataValid(pageable)) {
             throw new SystemException(INVALID_DATA_OF_PAGE);
         }
-        if (!isPageExists(pageable, totalOrderNumber)) {
-            throw new SystemException(NON_EXISTENT_PAGE);
-        }
     }
 
 

@@ -24,7 +24,7 @@ public class StatisticsDaoImpl implements StatisticsDao {
             	GROUP BY u.id ORDER BY sum(ord.order_cost) DESC LIMIT 1
             ) GROUP BY t.id ORDER BY count(t.id) DESC LIMIT 1""";
 
-    EntityManager entityManager;
+    private EntityManager entityManager;
 
     @Autowired
     public StatisticsDaoImpl(EntityManager entityManager) {

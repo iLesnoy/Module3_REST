@@ -79,8 +79,7 @@ public class UserServiceImpl implements UserService {
     public CustomPage<UserDto> findAll(CustomPageable pageable) {
         long userNumber = userDao.findEntityNumber();
         validation.checkPageableValidation(pageable, userNumber);
-        long totalTagNumber = userDao.findEntityNumber();
-        if (!validation.isPageExists(pageable, totalTagNumber)) {
+        if (!validation.isPageExists(pageable, userNumber)) {
             throw new SystemException(NON_EXISTENT_PAGE);
         }
         int offset = calculateOffset(pageable);
