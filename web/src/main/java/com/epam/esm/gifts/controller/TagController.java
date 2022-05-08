@@ -1,7 +1,10 @@
 package com.epam.esm.gifts.controller;
 
 import com.epam.esm.gifts.TagService;
+import com.epam.esm.gifts.dto.CustomPage;
+import com.epam.esm.gifts.dto.CustomPageable;
 import com.epam.esm.gifts.dto.TagDto;
+import com.epam.esm.gifts.hateaos.HateoasBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -11,10 +14,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/tags")
 public class TagController {
     private final TagService tagService;
+    private final HateoasBuilder hateoasBuilder;
 
     @Autowired
-    public TagController(TagService tagService) {
+    public TagController(TagService tagService, HateoasBuilder hateoasBuilder) {
         this.tagService = tagService;
+        this.hateoasBuilder = hateoasBuilder;
     }
 
     @PostMapping
@@ -32,6 +37,13 @@ public class TagController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTag(@PathVariable Long id) {
          tagService.delete(id);
+    }
+
+    @GetMapping
+    public CustomPage<TagDto> findAll(@PathVariable CustomPageable pageable) {
+        CustomPage<TagDto> customPage = tagService.findAll(pageable);
+        customPage.getContent().forEach(hateoasBuilder::setLinks);
+        return customPage;
     }
 
     /*@PutMapping
