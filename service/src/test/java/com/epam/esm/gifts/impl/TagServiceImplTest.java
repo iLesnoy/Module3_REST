@@ -1,164 +1,152 @@
 package com.epam.esm.gifts.impl;
 
-import com.epam.esm.gifts.converter.DtoToTagConverter;
-import com.epam.esm.gifts.converter.TagToDtoConverter;
-import com.epam.esm.gifts.dao.TagDao;
+
+import com.epam.esm.gifts.converter.TagConverter;
+import com.epam.esm.gifts.dao.impl.TagDaoImpl;
+import com.epam.esm.gifts.dto.CustomPage;
+import com.epam.esm.gifts.dto.CustomPageable;
 import com.epam.esm.gifts.dto.TagDto;
-import com.epam.esm.gifts.exception.EntityCreationException;
-import com.epam.esm.gifts.exception.EntityInUseException;
-import com.epam.esm.gifts.exception.EntityNameValidationException;
-import com.epam.esm.gifts.exception.EntityNotFoundException;
+import com.epam.esm.gifts.exception.SystemException;
+import com.epam.esm.gifts.model.GiftCertificate;
 import com.epam.esm.gifts.model.Tag;
-import com.epam.esm.gifts.validator.GiftCertificateValidator;
+import com.epam.esm.gifts.validator.EntityValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static com.epam.esm.gifts.validator.GiftCertificateValidator.*;
 
 @ExtendWith(MockitoExtension.class)
 class TagServiceImplTest {
 
-    private final String TAG_NAME= "tag";
-    private final long TAG_ID = 1;
+    @InjectMocks
+    private TagServiceImpl service;
+    @Mock
+    private TagDaoImpl tagDao;
+    @Mock
+    private EntityValidator validator;
+    @Mock
+    private TagConverter tagConverter;
 
     private Tag tag;
-    private TagDto expected;
-
-
-    @InjectMocks
-    TagServiceImpl service;
-
-    @Mock
-    GiftCertificateValidator validator;
-    @Mock
-    DtoToTagConverter dtoToTagConverter;
-    @Mock
-    TagToDtoConverter tagToDtoConverter;
-    @Mock
-    TagDao tagDao;
+    private TagDto tagDto;
+    private CustomPageable pageable;
+    private GiftCertificate giftCertificate;
+    private CustomPage<TagDto> tagPage;
 
     @BeforeEach
     void setUp() {
-       tag = new Tag(TAG_ID,TAG_NAME);
-       expected = new TagDto(TAG_ID,TAG_NAME);
+        giftCertificate= GiftCertificate.builder().id(1L).name("name").build();
+        tag = Tag.builder().id(1L).name("name").build();
+        tagDto = TagDto.builder().id(1L).name("name").build();
+        pageable = new CustomPageable();
+        pageable.setPage(5);
+        pageable.setSize(1);
+        tagPage = new CustomPage<>(List.of(tagDto, tagDto), pageable, 15L);
     }
 
     @Test
     void create() {
-        doReturn(true).when(validator).isNameValid(Mockito.anyString(),Mockito.any(ActionType.class));
-        doReturn(Optional.empty()).when(tagDao).findById(expected.getId());
-        doReturn(expected).when(tagToDtoConverter).convert(Mockito.any(Tag.class));
-        doReturn(tag).when(tagDao).create(Mockito.any(Tag.class));
-        doReturn(tag).when(dtoToTagConverter).convert(Mockito.any(TagDto.class));
-        TagDto actual = service.create(expected);
-        assertEquals(expected,actual);
+        doReturn(tag).when(tagConverter).dtoToTag(any(TagDto.class));
+        doReturn(false).when(validator).isNameValid(anyString());
+        SystemException thrown = assertThrows(SystemException.class, () -> service.create(tagDto));
+        assertEquals(40020, thrown.getErrorCode());
     }
 
     @Test
-    void createIfGiftAlreadyExist() {
-        try {
-            doReturn(true).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ActionType.class));
-            doReturn(Optional.of(tag)).when(tagDao).findById(expected.getId());
-            service.create(expected);
-            fail("Method create() should throw EntityCreationException");
-        }catch (EntityCreationException e){
-            assertTrue(true);
-        }
+    void createWithInvalidName() {
+        doReturn(tag).when(tagConverter).dtoToTag(any(TagDto.class));
+        doReturn(true).when(validator).isNameValid(anyString());
+        doReturn(Optional.of(tag)).when(tagDao).findByName(anyString());
+        doReturn(tagDto).when(tagConverter).tagToDto(any(Tag.class));
+        TagDto actual = service.create(tagDto);
+        assertEquals(tagDto, actual);
     }
 
-    @Test
-    void createThrowExceptionWhenNameInvalid() {
-        doReturn(false).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ActionType.class));
-        try {
-            service.create(expected);
-            fail("Method create() should throw  EntityNotValidTagNameException");
-        } catch (EntityNameValidationException e) {
-            assertTrue(true);
-        }
-    }
-
-    @Test
-    void findById() {
-        doReturn(expected).when(tagToDtoConverter).convert(Mockito.any(Tag.class));
-        doReturn(Optional.of(tag)).when(tagDao).findById(Mockito.anyLong());
-        TagDto actual = service.findById(Mockito.anyLong());
-        assertEquals(expected,actual);
-    }
-
-    @Test
-    void findByIdWhenTagNotFound() {
-        doReturn(Optional.empty()).when(tagDao).findById(Mockito.anyLong());
-        try {
-            TagDto actual = service.findById(Mockito.anyLong());
-            assertEquals(expected, actual);
-        }catch (EntityNotFoundException e){
-            assertTrue(true);
-        }
-    }
 
 
     @Test
     void update() {
-        doReturn(Optional.of(tag)).when(tagDao).findById(Mockito.anyLong());
-        doReturn(true).when(validator).isNameValid(Mockito.anyString(),Mockito.any(ActionType.class));
-        doReturn(expected).when(tagToDtoConverter).convert(Mockito.any(Tag.class));
-        doReturn(tag).when(dtoToTagConverter).convert(Mockito.any(TagDto.class));
-        TagDto actual = service.update(TAG_ID,expected);
-        assertEquals(expected,actual);
-
+        doReturn(tag).when(tagConverter).dtoToTag(any(TagDto.class));
+        doReturn(true).when(validator).isNameValid(anyString());
+        TagDto tag = service.update(1L, tagDto);
+        assertEquals(tag, tagDto);
     }
 
     @Test
-    void updateWhenTagByIdIsNotFound() {
-        doReturn(Optional.empty()).when(tagDao).findById(Mockito.anyLong());
-        try{
-            service.update(Mockito.anyLong(),expected);
-            fail("update() method should throw EntityNotFoundException");
-        }catch (EntityNotFoundException e){
-            assertTrue(true);
-        }
+    void updateThrowInvalidName() {
+        doReturn(false).when(validator).isNameValid(anyString());
+        doReturn(tag).when(tagConverter).dtoToTag(any(TagDto.class));
+        SystemException thrown = assertThrows(SystemException.class, () -> service.create(tagDto));
+        assertEquals(40020, thrown.getErrorCode());
     }
 
     @Test
-    void updateWhenTagNameIsInvalid() {
-        doReturn(Optional.of(tag)).when(tagDao).findById(Mockito.anyLong());
-        doReturn(false).when(validator).isNameValid(TAG_NAME,ActionType.INSERT);
-        try{
-            service.update(Mockito.anyLong(),expected);
-            fail("update() method should throw EntityNameValidationException");
-        }catch (EntityNameValidationException e){
-            assertTrue(true);
-        }
+    void findAll() {
+        doReturn(true).when(validator).isPageDataValid(any(CustomPageable.class));
+        doReturn(15L).when(tagDao).findEntityNumber();
+        doReturn(true).when(validator).isPageExists(any(CustomPageable.class), anyLong());
+        doReturn(List.of(tag, tag)).when(tagDao).findAll(anyInt(), anyInt());
+        doReturn(tagDto).when(tagConverter).tagToDto(any(Tag.class));
+        CustomPage<TagDto> actual = service.findAll(pageable);
+        assertEquals(tagPage, actual);
+    }
+
+    @Test
+    void findAllPageNotExist() {
+        doReturn(true).when(validator).isPageDataValid(any(CustomPageable.class));
+        doReturn(15L).when(tagDao).findEntityNumber();
+        doReturn(false).when(validator).isPageExists(any(CustomPageable.class), anyLong());
+        doReturn(List.of(tag, tag)).when(tagDao).findAll(anyInt(), anyInt());
+        SystemException thrown = assertThrows(SystemException.class, () -> service.findAll(pageable));
+        assertEquals(40051, thrown.getErrorCode());
+    }
+
+    @Test
+    void findAllWithInvalidPageable() {
+        doReturn(false).when(validator).isPageDataValid(any(CustomPageable.class));
+        SystemException thrown = assertThrows(SystemException.class, () -> service.findAll(pageable));
+        assertEquals(40050, thrown.getErrorCode());
+    }
+
+    @Test
+    void findById() {
+        doReturn(tagDto).when(tagConverter).tagToDto(any(Tag.class));
+        doReturn(Optional.of(tag)).when(tagDao).findById(anyLong());
+        TagDto actual = service.findById(1L);
+        assertEquals(tagDto, actual);
+    }
+
+    @Test
+    void findByIdThrowsExceptionWithNonExistentEntity() {
+        doReturn(Optional.empty()).when(tagDao).findById(anyLong());
+        SystemException thrown = assertThrows(SystemException.class, () -> service.findById(1L));
+        assertEquals(40410, thrown.getErrorCode());
+    }
+
+    @Test
+    void deleteThrowsExceptionWithNonExistentEntity() {
+        doReturn(Optional.empty()).when(tagDao).findById(anyLong());
+        SystemException thrown = assertThrows(SystemException.class, () -> service.delete(1L));
+        assertEquals(40410, thrown.getErrorCode());
     }
 
     @Test
     void delete() {
-        doReturn(Optional.of(tag)).when(tagDao).findById(Mockito.anyLong());
-        doReturn(expected).when(tagToDtoConverter).convert(Mockito.any(Tag.class));
-        doReturn(1).when(tagDao).deleteById(Mockito.anyLong());
-        TagDto actual = service.delete(Mockito.anyLong());
-        assertEquals(expected, actual);
+        doReturn(Optional.of(tag)).when(tagDao).findById(anyLong());
+        doReturn(List.of(giftCertificate)).when(tagDao).isTagUsed(tag);
+        doNothing().when(tagDao).delete(any(Tag.class));
+        service.delete(1L);
+        assertTrue(true);
     }
 
-    @Test
-    void deleteThrowExceptionWhenTagInUse() {
-        doReturn(Optional.of(tag)).when(tagDao).findById(Mockito.anyLong());
-        doReturn(expected).when(tagToDtoConverter).convert(Mockito.any(Tag.class));
-        doReturn(true).when(tagDao).isUsed(Mockito.anyLong());
-        try {
-            service.delete(TAG_ID);
-            fail("Method delete should throw exception EntityInUseException");
-        } catch (EntityInUseException e) {
-            assertTrue(true);
-        }
-    }
 }

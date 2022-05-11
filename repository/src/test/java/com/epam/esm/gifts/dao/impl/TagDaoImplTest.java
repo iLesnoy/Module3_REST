@@ -1,13 +1,16 @@
 package com.epam.esm.gifts.dao.impl;
 
 import com.epam.esm.gifts.dao.config.TestConfig;
+import com.epam.esm.gifts.model.GiftCertificate;
 import com.epam.esm.gifts.model.Tag;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,93 +19,89 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
+@SpringBootTest(classes = {TestConfig.class})
+@Transactional
 @ActiveProfiles("test")
 class TagDaoImplTest {
 
-    private static final long EXIST_TAG_ID = 1;
-    private static final int EXPECT_LIST_SIZE = 4;
-    private static final String CREATED_TAG_NAME = "tag";
 
     private final TagDaoImpl tagDao;
+    private Tag expected;
 
     @Autowired
     public TagDaoImplTest(TagDaoImpl tagDao) {
         this.tagDao = tagDao;
     }
 
+
+    @BeforeEach
+    void setUp() {
+        expected = Tag.builder().name("maven").build();
+    }
+
+    @Test
+    void findAll() {
+        List<Tag> tagList = tagDao.findAll(0,4);
+        System.out.println(tagList.size());
+        assertEquals(tagList.size(),4);
+    }
+
     @Test
     void create() {
-        Tag actual = tagDao.create(new Tag(0, CREATED_TAG_NAME));
-        assertEquals(actual.getName(), CREATED_TAG_NAME);
+        Tag actual = tagDao.create(expected);
+        assertEquals("maven",actual.getName());
+
     }
 
     @Test
     void findById() {
-        Optional<Tag> actual = tagDao.findById(EXIST_TAG_ID);
-        assertTrue(actual.isPresent());
+        Optional<Tag> tag = tagDao.findById(1L);
+        assertEquals("Enum", tag.get().getName());
     }
 
     @Test
-    void FindByIdReturnsEmptyNotExistingTag() {
-        Optional<Tag> actual = tagDao.findById(100L);
-        assertTrue(actual.isEmpty());
+    void update() {
+        expected.setId(1L);
+        expected.setName("Enum");
+        tagDao.update(expected);
+        Optional<Tag> tag = tagDao.findById(1L);
+        assertEquals("Enum", tag.get().getName());
+
     }
 
     @Test
-    void findAllTags() {
-        List<Tag> tags = tagDao.findAll();
-        assertEquals(EXPECT_LIST_SIZE, tags.size());
+    void delete() {
+        expected.setId(2L);
+        expected.setName("maven");
+        tagDao.delete(expected);
+        List<Tag> tagList = tagDao.findAll(0,5);
+        assertTrue(true);
     }
 
     @Test
-    void deleteById() {
-        int condition = tagDao.deleteById(3L);
-        assertTrue(condition == 1);
+    void findEntityNumber() {
+        long actual = tagDao.findEntityNumber();
+        assertEquals(4, actual);
     }
 
     @Test
-    void deleteReturnFalseNotExistingTag() {
-        int condition = tagDao.deleteById(100L);
-        System.out.println(condition);
-        assertFalse(condition != 0);
+    void findByName() {
+        Optional<Tag> tag = tagDao.findByName("EPAM");
+        assertNotNull(tag.get());
     }
 
     @Test
-    void isInUseTag() {
-        boolean condition = tagDao.isUsed(EXIST_TAG_ID);
-        assertTrue(condition);
+    void isTagUsed() {
+        List<GiftCertificate> tag = tagDao.isTagUsed(expected);
+        assertNotNull(tag);
     }
 
     @Test
-    void isExistingReturnsFalseNotExistingTag() {
-        boolean condition = tagDao.isUsed(999L);
-        assertFalse(condition);
+    void isTagUsedInCertificatesWithFalseCondition() {
+        List<GiftCertificate> tag = tagDao.isTagUsed(Tag.builder()
+                .id(35L).name("papa")
+                .build());
+        assertTrue(tag.isEmpty());
     }
 
-    @Test
-    void isUsed() {
-        boolean condition = tagDao.isUsed(EXIST_TAG_ID);
-        assertTrue(condition);
-    }
-
-    @Test
-    void isUsedReturnsFalseNotExistingTag() {
-        boolean condition = tagDao.isUsed(100L);
-        assertFalse(condition);
-    }
-
-    @Test
-    void findOrCreateTagNotExistingTag() {
-        Tag expected = new Tag(2, "REST");
-        Tag actual = tagDao.findOrCreateTag(expected);
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    void findOrCreateTagWithNotExistingTag() {
-        Tag expected = new Tag(500, "simpleTag");
-        Tag actual = tagDao.findOrCreateTag(expected);
-        assertEquals(expected, actual);
-    }
 }

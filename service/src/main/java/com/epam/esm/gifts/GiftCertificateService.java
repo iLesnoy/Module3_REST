@@ -1,21 +1,18 @@
 package com.epam.esm.gifts;
 
+import com.epam.esm.gifts.dto.CustomPage;
+import com.epam.esm.gifts.dto.CustomPageable;
+import com.epam.esm.gifts.dto.GiftCertificateAttributeDto;
 import com.epam.esm.gifts.dto.GiftCertificateDto;
-import com.epam.esm.gifts.model.Tag;
+import com.epam.esm.gifts.model.GiftCertificate;
+import com.epam.esm.gifts.model.GiftCertificateAttribute;
 
 import java.util.List;
 
-public interface GiftCertificateService {
+public interface GiftCertificateService extends BaseService<GiftCertificateDto> {
 
-    GiftCertificateDto create(GiftCertificateDto giftCertificateDto);
+    CustomPage<GiftCertificateDto> searchByParameters(GiftCertificateAttributeDto attributeDto, CustomPageable pageable);
 
-    GiftCertificateDto update(Long id,GiftCertificateDto giftCertificateDto);
+    GiftCertificate findCertificateById(Long id);
 
-    GiftCertificateDto findById(Long id);
-
-    List<GiftCertificateDto> searchByParameters(String tagName, String searchPart,String description, List<String> sortingFieldList, String orderSort);
-
-    GiftCertificateDto delete(Long id);
-
-    boolean deleteAllTagsFromCertificate(Long id);
 }

@@ -1,15 +1,15 @@
 package com.epam.esm.gifts.impl;
 
-import com.epam.esm.gifts.converter.DtoToGiftCertificateConverter;
-import com.epam.esm.gifts.converter.DtoToTagConverter;
-import com.epam.esm.gifts.converter.GiftCertificateToDtoConverter;
+import com.epam.esm.gifts.converter.GiftCertificateAttributeConverter;
+import com.epam.esm.gifts.converter.GiftCertificateConverter;
+import com.epam.esm.gifts.converter.TagConverter;
 import com.epam.esm.gifts.dao.impl.GiftCertificateDaoImpl;
-import com.epam.esm.gifts.dto.GiftCertificateDto;
-import com.epam.esm.gifts.dto.TagDto;
-import com.epam.esm.gifts.exception.*;
+import com.epam.esm.gifts.dto.*;
+import com.epam.esm.gifts.exception.SystemException;
 import com.epam.esm.gifts.model.GiftCertificate;
+import com.epam.esm.gifts.model.GiftCertificateAttribute;
 import com.epam.esm.gifts.model.Tag;
-import com.epam.esm.gifts.validator.GiftCertificateValidator;
+import com.epam.esm.gifts.validator.EntityValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,13 +20,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doReturn;
-import static com.epam.esm.gifts.validator.GiftCertificateValidator.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GiftCertificateServiceImplTest {
@@ -47,289 +46,193 @@ class GiftCertificateServiceImplTest {
 
     private Tag tag;
     private TagDto tagDto;
-    private List<Tag> tagList;
+    private Set<Tag> tagSet;
     private List<TagDto> tagDtoList;
     private GiftCertificate certificate;
-    private GiftCertificateDto expected;
+    private GiftCertificateDto updatedCertificate;
+    private GiftCertificateDto certificateDto;
     private List<String> sortingFieldList;
     private List<GiftCertificateDto> expectedList;
+    private CustomPageable pageable;
+    private CustomPage<GiftCertificateDto> page;
 
     @InjectMocks
     private GiftCertificateServiceImpl service;
     @Mock
     private GiftCertificateDaoImpl certificateDao;
     @Mock
-    private GiftCertificateValidator validator;
+    private EntityValidator validator;
     @Mock
-    private DtoToGiftCertificateConverter toCertificateConverter;
+    private GiftCertificateConverter certificateConverter;
     @Mock
-    private GiftCertificateToDtoConverter toCertificateDtoConverter;
+    private GiftCertificateAttributeConverter attributeConverter;
     @Mock
-    private DtoToTagConverter toTagConverter;
+    private TagConverter tagConverter;
+    @Mock
+    private TagServiceImpl tagService;
 
     @BeforeEach
     void setUp() {
-        tag = new Tag(TAG_ID, TAG_NAME);
+        tag = Tag.builder().id(1L).name("tag").build();
         tagDto = new TagDto(TAG_ID, TAG_NAME);
-        tagList = new ArrayList<>(List.of(tag, tag, tag));
+        tagSet = new HashSet<>(List.of(tag, tag, tag));
         tagDtoList = new ArrayList<>(List.of(tagDto, tagDto, tagDto));
         certificate = new GiftCertificate(CERTIFICATE_ID, CERTIFICATE_NAME, DESCRIPTION, PRICE, DURATION, CREATION_DATE
-                , LAST_UPDATE_DATE, tagList);
-        expected = new GiftCertificateDto(CERTIFICATE_ID, CERTIFICATE_NAME, DESCRIPTION, PRICE, DURATION, CREATION_DATE
-                , LAST_UPDATE_DATE, tagDtoList);
+                , LAST_UPDATE_DATE, tagSet);
+        certificateDto = GiftCertificateDto.builder()
+                .id(1L)
+                .name("name")
+                .description("description")
+                .price(new BigDecimal("40"))
+                .duration(5)
+                .createDate(LocalDateTime.of(2001, 1, 2, 3, 4))
+                .lastUpdateDate(LocalDateTime.of(2003, 1, 2, 3, 4))
+                .tagDtoList(List.of(tagDto))
+                .build();
+        updatedCertificate = GiftCertificateDto.builder()
+                .id(1L)
+                .name("nama")
+                .description("description")
+                .price(new BigDecimal("40"))
+                .duration(5)
+                .createDate(LocalDateTime.of(2001, 1, 2, 3, 4))
+                .lastUpdateDate(LocalDateTime.of(2003, 1, 2, 3, 4))
+                .tagDtoList(List.of(tagDto))
+                .build();
+        pageable = new CustomPageable();
+        pageable.setPage(10);
+        pageable.setSize(1);
+        page = new CustomPage<>(List.of(certificateDto), pageable, 30L);
         sortingFieldList = List.of("name", "price");
-        expectedList = List.of(expected, expected, expected);
+        expectedList = List.of(certificateDto, certificateDto);
     }
 
     @Test
     void create() {
-        setCheckFieldsResult();
-        doReturn(certificate).when(toCertificateConverter).convert(Mockito.any(GiftCertificateDto.class));
+        doReturn(true).when(certificateDao).isGiftNameFree(Mockito.anyString());
+        doReturn(certificate).when(certificateConverter).dtoToGiftCertificate(Mockito.any(GiftCertificateDto.class));
+        doReturn(tag).when(tagService).createTag(Mockito.any(Tag.class));
         doReturn(certificate).when(certificateDao).create(Mockito.any(GiftCertificate.class));
-        doReturn(tagList).when(certificateDao).addTagsToCertificate(Mockito.anyLong(), Mockito.anyList());
-        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
-        GiftCertificateDto actual = service.create(expected);
-        assertEquals(actual, expected);
-
+        doReturn(certificateDto).when(certificateConverter).giftCertificateToDto(Mockito.any(GiftCertificate.class));
+        GiftCertificateDto actual = service.create(certificateDto);
+        assertEquals(certificateDto, actual);
     }
+
+
+    @Test
+    void findCertificateCreateWhenNameIsDuplicate() {
+        SystemException thrown = assertThrows(SystemException.class, () -> service.create(certificateDto));
+        assertEquals(40911, thrown.getErrorCode());
+    }
+
 
     @Test
     void createThrowExceptionNullArg() {
         try {
             service.create(null);
-            fail("Method insert() should throw EntityCreationException");
-        } catch (EntityCreationException e) {
+            fail("Method create should throw SystemException");
+        } catch (SystemException e) {
             assertTrue(true);
         }
     }
-
-    @Test
-    void createThrowExceptionWhenNameIsInvalid() {
-        doReturn(false).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ActionType.class));
-        try {
-            service.create(expected);
-            fail("Method insert() should throw EntityNotValidNameException");
-        } catch (EntityNameValidationException e) {
-            assertTrue(true);
-        }
-    }
-
-    @Test
-    void createThrowPriceValidationException(){
-        doReturn(true).when(validator).isNameValid(Mockito.anyString(),Mockito.any(ActionType.class));
-        doReturn(true).when(validator).isDescriptionValid(Mockito.anyString(), Mockito.any(ActionType.class));
-        doReturn(false).when(validator).isPriceValid(Mockito.any(BigDecimal.class),Mockito.any(ActionType.class));
-        try {
-            service.create(expected);
-            fail("Method insert() should throw EntityPriceValidationException");
-        } catch (EntityPriceValidationException e){
-            assertTrue(true);
-        }
-    }
-
-    @Test
-    void createThrowDurationValidationException(){
-        doReturn(true).when(validator).isNameValid(Mockito.anyString(),Mockito.any(ActionType.class));
-        doReturn(true).when(validator).isDescriptionValid(Mockito.anyString(), Mockito.any(ActionType.class));
-        doReturn(true).when(validator).isPriceValid(Mockito.any(BigDecimal.class),Mockito.any(ActionType.class));
-        doReturn(false).when(validator).isDurationValid(Mockito.anyInt(),Mockito.any(ActionType.class));
-        try {
-            service.create(expected);
-            fail("Method insert() should throw EntityDurationValidationException");
-        } catch (EntityDurationValidationException e){
-            assertTrue(true);
-        }
-    }
-
-    @Test
-    void createThrowTagListValidationException(){
-        doReturn(true).when(validator).isNameValid(Mockito.anyString(),Mockito.any(ActionType.class));
-        doReturn(true).when(validator).isDescriptionValid(Mockito.anyString(), Mockito.any(ActionType.class));
-        doReturn(true).when(validator).isPriceValid(Mockito.any(BigDecimal.class),Mockito.any(ActionType.class));
-        doReturn(true).when(validator).isDurationValid(Mockito.anyInt(),Mockito.any(ActionType.class));
-        doReturn(false).when(validator).isTagListValid(Mockito.anyList(),Mockito.any(ActionType.class));
-        try {
-            service.create(expected);
-            fail("Method insert() should throw EntityTagNameValidationException");
-        } catch (EntityTagNameValidationException e){
-            assertTrue(true);
-        }
-    }
-
 
     @Test
     void update() {
         doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
-        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
-        setCheckFieldsResult();
-        GiftCertificateDto actual = service.update(expected.getId(), expected);
-        assertEquals(expected, actual);
+        doReturn(tag).when(tagConverter).dtoToTag(Mockito.any(TagDto.class));
+        doReturn(tag).when(tagService).createTag(Mockito.any(Tag.class));
+        doNothing().when(certificateDao).update(certificate);
+        doReturn(updatedCertificate).when(certificateConverter).giftCertificateToDto(Mockito.any(GiftCertificate.class));
+        GiftCertificateDto actual = service.update(1L, updatedCertificate);
+        assertEquals(actual, updatedCertificate);
     }
 
     @Test
-    void updateGiftWithEmptyTagList() {
-        expected.setTags(List.of());
-        doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
-        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
-        setCheckFieldsResult();
-        GiftCertificateDto actual = service.update(expected.getId(), expected);
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    void updateWhenGiftDtoNullTagList() {
+    void updateWithNullTagList() {
         try {
-            service.update(expected.getId(), null);
-            fail("update() method should throw EntityCreationException");
-        } catch (EntityCreationException e){
+            GiftCertificateDto actual = service.update(1L, GiftCertificateDto.builder()
+                    .id(1L).name("qwe").tagDtoList(List.of()).price(new BigDecimal("2.0")).duration(2).build());
+            service.update(1L, actual);
+        } catch (SystemException e) {
             assertTrue(true);
         }
     }
 
     @Test
-    void updateWhenGiftIdIsNullTagList() {
-        try {
-            service.update(null, expected);
-            fail("update() method should throw EntityCreationException");
-        } catch (EntityCreationException e){
-            assertTrue(true);
-        }
-    }
-
-    @Test
-    void updateWhenIdAndGiftDtoIsNullTagList() {
+    void updateThrowExceptionNullArgs() {
         try {
             service.update(null, null);
-            fail("update() method should throw EntityCreationException");
-        } catch (EntityCreationException e){
+            fail("Method update should throw SystemException");
+        } catch (SystemException e) {
             assertTrue(true);
         }
-    }
-
-    @Test
-    void updateThrowExceptionWhenNameInvalid() {
-        doReturn(false).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ActionType.class));
-        try {
-            service.update(CERTIFICATE_ID, expected);
-            fail("Method insert should throw exception EntityNameValidationException");
-        } catch (EntityNameValidationException e) {
-            assertTrue(true);
-        }
-    }
-
-    @Test
-    void updateWithNullTagList(){
-        expected.setTags(null);
-        doReturn(true).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ActionType.class));
-        doReturn(true).when(validator).isDescriptionValid(Mockito.anyString(), Mockito.any(ActionType.class));
-        doReturn(true).when(validator).isPriceValid(Mockito.any(BigDecimal.class), Mockito.any(ActionType.class));
-        doReturn(true).when(validator).isDurationValid(Mockito.anyInt(), Mockito.any(ActionType.class));
-        doReturn(true).when(validator).isTagListValid(expected.getTags(), ActionType.UPDATE);
-        doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
-        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
-        GiftCertificateDto actual = service.update(expected.getId(), expected);
-        assertEquals(expected, actual);
     }
 
     @Test
     void findById() {
+        doReturn(certificateDto).when(certificateConverter).giftCertificateToDto(Mockito.any(GiftCertificate.class));
         doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
-        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
-        GiftCertificateDto actual = service.findById(expected.getId());
-        assertEquals(expected, actual);
+        GiftCertificateDto actual = service.findById(1L);
+        assertNotNull(actual);
     }
 
     @Test
-    void findByIdWhenGiftNotFound() {
-        doReturn(Optional.empty()).when(certificateDao).findById(Mockito.anyLong());
+    void findCertificateByIdWhenEntityNonExist() {
+        SystemException thrown = assertThrows(SystemException.class, () -> service.findById(Mockito.anyLong()));
+        assertEquals(40410, thrown.getErrorCode());
+    }
+
+    @Test
+    void findByIdThrowsExceptionWithNonExistentEntity() {
+        doReturn(Optional.empty()).when(certificateDao).findById(anyLong());
+        SystemException thrown = assertThrows(SystemException.class, () -> service.findById(1L));
+        assertEquals(40410, thrown.getErrorCode());
+    }
+
+
+    @Test
+    void findAll() {
         try {
-            service.findById(expected.getId());
-            fail("findById() method should throw EntityNotFoundException");
-        } catch (EntityNotFoundException e){
+            service.findAll(pageable);
+            fail("command is not supported, please use searchByParameters");
+        } catch (UnsupportedOperationException e) {
             assertTrue(true);
         }
     }
 
     @Test
     void searchByParameters() {
-        doReturn(true).when(validator).isSortOrderValid(Mockito.anyString());
-        doReturn(List.of(certificate, certificate, certificate)).when(certificateDao).findByParameters(
-                (Mockito.anyString()), Mockito.anyString(), Mockito.anyString(), Mockito.anyList(), Mockito.anyString());
-        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
-        List<GiftCertificateDto> actualList = service.searchByParameters(TAG_NAME, SEARCH_PART, DESCRIPTION, sortingFieldList, ORDER_SORT);
-        assertEquals(expectedList, actualList);
+        doThrow(new SystemException(Mockito.anyInt())).when(service).checkSearchParams(GiftCertificateAttributeDto.builder().build(),pageable);
+        doReturn(List.of(certificate)).when(certificateDao).findByAttributes(Mockito.any(GiftCertificateAttribute.class),Mockito.anyInt(),Mockito.anyInt());
+        doReturn(certificateDto).when(certificateConverter).giftCertificateToDto(Mockito.any(GiftCertificate.class));
+        CustomPage<GiftCertificateDto> actual = service.searchByParameters(GiftCertificateAttributeDto.builder().build(),pageable);
+        assertEquals(page, actual);
     }
 
     @Test
-    void searchByParametersReturnEmptyList() {
-        doReturn(true).when(validator).isSortOrderValid(Mockito.anyString());
-        doReturn(List.of()).when(certificateDao).findByParameters(Mockito.anyString(),Mockito.anyString(),Mockito.anyString(),
-                Mockito.anyList(),Mockito.anyString());
-        List<GiftCertificateDto> actualList = service.searchByParameters(TAG_NAME, SEARCH_PART, DESCRIPTION, sortingFieldList, ORDER_SORT);
-        assertEquals(List.of(), actualList);
+    void searchByParametersThrowInvalidAttributeList() {
+        SystemException thrown = assertThrows(SystemException.class, () -> service.searchByParameters(GiftCertificateAttributeDto.builder().build(),pageable));
+        assertEquals(40034, thrown.getErrorCode());
     }
 
-    @Test
-    void searchByParametersWhenSortOrderIsInvalid() {
-        doReturn(false).when(validator).isSortOrderValid(Mockito.anyString());
-        try {
-            service.searchByParameters(TAG_NAME,SEARCH_PART,DESCRIPTION, sortingFieldList, ORDER_SORT);
-            fail("Method searchByParameters() should throw exception EntityNotValidNameException");
-        } catch (EntityNameValidationException e) {
-            assertTrue(true);
-        }
-    }
 
     @Test
     void delete() {
         doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
-        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
-        doReturn(1).when(certificateDao).deleteById(CERTIFICATE_ID);
-        GiftCertificateDto actual = service.delete(CERTIFICATE_ID);
-        assertEquals(expected, actual);
+        doNothing().when(certificateDao).delete(certificate);
+        service.delete(1L);
+        assertTrue(true);
     }
 
-    @Test
-    void deleteThrowExceptionWhenResourceDoesntExist() {
-        doReturn(Optional.empty()).when(certificateDao).findById(Mockito.anyLong());
-        try {
-            service.delete(CERTIFICATE_ID);
-            fail("delete() method should throw exception EntityNotFoundException");
-        } catch (EntityNotFoundException e) {
-            assertTrue(true);
-        }
+    private void findEntityNumber() {
+        doReturn(true).when(validator).isAttributeDtoValid(Mockito.any(GiftCertificateAttributeDto.class));
+        doReturn(true).when(validator).isPageDataValid(Mockito.any(CustomPageable.class));
+        doReturn(GiftCertificateAttribute.builder().build()).when(attributeConverter).convert(Mockito.any(GiftCertificateAttributeDto.class));
+        doReturn(30L).when(certificateDao).findEntityNumber(Mockito.any(GiftCertificateAttribute.class));
     }
 
-    @Test
-    void deleteReturnNullWhenIsNotDeleted() {
-        doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
-        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
-        doReturn(0).when(certificateDao).deleteById(CERTIFICATE_ID);
-        GiftCertificateDto actual = service.delete(CERTIFICATE_ID);
-        assertEquals(expected, actual);
+    private void setInvalidName() {
+        doReturn(false).when(validator).isNameValid(anyString());
     }
 
-    @Test
-    void updateTagListInCertificate() {
-        doReturn(true).when(certificateDao).deleteAllTagsFromCertificate(CERTIFICATE_ID);
-        doReturn(tagList).when(certificateDao).addTagsToCertificate(Mockito.anyLong(), Mockito.anyList());
-        List<Tag> actualUpdatedTags = service.updateTagListInCertificate(CERTIFICATE_ID,tagDtoList);
-        assertEquals(tagList,actualUpdatedTags);
-    }
-
-    @Test
-    void updateWhenTagListEmpty() {
-        doReturn(true).when(certificateDao).deleteAllTagsFromCertificate(CERTIFICATE_ID);
-        doReturn(List.of()).when(certificateDao).addTagsToCertificate(Mockito.anyLong(), Mockito.anyList());
-        List<Tag> actualUpdatedTags = service.updateTagListInCertificate(CERTIFICATE_ID,tagDtoList);
-        assertEquals(List.of(),actualUpdatedTags);
-    }
-
-    private void setCheckFieldsResult() {
-        doReturn(true).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ActionType.class));
-        doReturn(true).when(validator).isDescriptionValid(Mockito.anyString(), Mockito.any(ActionType.class));
-        doReturn(true).when(validator).isPriceValid(Mockito.any(BigDecimal.class), Mockito.any(ActionType.class));
-        doReturn(true).when(validator).isDurationValid(Mockito.anyInt(), Mockito.any(ActionType.class));
-        doReturn(true).when(validator).isTagListValid(Mockito.anyList(), Mockito.any(ActionType.class));
-    }
 }
