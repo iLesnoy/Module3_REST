@@ -1,5 +1,6 @@
 package com.epam.esm.gifts.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AccessLevel;
@@ -23,6 +24,7 @@ import java.util.List;
 public class ResponseOrderDto extends RepresentationModel<ResponseOrderDto> {
     @JsonProperty("id")
     private Long id;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @JsonProperty("order-date")
     private LocalDateTime orderDate;
     @JsonProperty("cost")

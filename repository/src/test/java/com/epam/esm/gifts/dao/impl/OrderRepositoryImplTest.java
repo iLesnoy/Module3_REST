@@ -1,5 +1,6 @@
 package com.epam.esm.gifts.dao.impl;
 
+import com.epam.esm.gifts.dao.OrderRepository;
 import com.epam.esm.gifts.dao.config.TestConfig;
 import com.epam.esm.gifts.model.GiftCertificate;
 import com.epam.esm.gifts.model.Order;
@@ -15,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -26,16 +26,16 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(classes = {TestConfig.class})
 @Transactional
 @ActiveProfiles("test")
-class OrderDaoImplTest {
+class OrderRepositoryImplTest {
 
-    OrderDaoImpl orderDao;
+    OrderRepository orderRepository;
     Order order;
-    Set<Tag>tagSet;
+    Set<Tag> tagSet;
     GiftCertificate giftCertificate;
 
     @Autowired
-    public OrderDaoImplTest(OrderDaoImpl orderDao) {
-        this.orderDao = orderDao;
+    public OrderRepositoryImplTest(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
     }
 
     @BeforeEach
@@ -45,7 +45,7 @@ class OrderDaoImplTest {
                 .price(new BigDecimal(200))
                 .createDate(LocalDateTime.now())
                 .tagList(tagSet).build();
-        order= Order.builder().id(1L)
+        order = Order.builder().id(1L)
                 .cost(new BigDecimal(200))
                 .purchaseTime(LocalDateTime.now())
                 .certificateList(List.of(giftCertificate)).build();
@@ -53,37 +53,32 @@ class OrderDaoImplTest {
 
     @Test
     void findAll() {
-       List<Order>orderLis = orderDao.findAll(0,5);
+        List<Order> orderLis = orderRepository.findAll();
         assertEquals(2, orderLis.size());
     }
 
     @Test
     void create() {
-        Order actual = orderDao.create(order);
-        assertEquals(actual,order);
+        Order actual = orderRepository.save(order);
+        assertEquals(actual, order);
     }
 
     @Test
     void findById() {
-        Optional<Order> optionalOrder = orderDao.findById(1L);
+        Optional<Order> optionalOrder = orderRepository.findById(1L);
         assertTrue(optionalOrder.isPresent());
     }
 
     @Test
     void update() {
-        orderDao.update(order);
+        orderRepository.save(order);
         assertTrue(true);
     }
 
     @Test
     void delete() {
-        orderDao.delete(order);
+        orderRepository.delete(order);
         assertTrue(true);
     }
 
-    @Test
-    void findEntityNumber() {
-        Long entityNumber = orderDao.findEntityNumber();
-        assertEquals(2,entityNumber);
-    }
 }
